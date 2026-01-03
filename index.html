@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnest Solutions | The Insider Advantage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .clip-path-slant {
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .clip-path-slant-reverse {
+            clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+        }
+        
+        /* Custom Red for Earnest Solutions */
+        .bg-earnest-red { background-color: #D32F2F; }
+        .text-earnest-red { color: #D32F2F; }
+        .border-earnest-red { border-color: #D32F2F; }
+        .hover-bg-earnest-dark:hover { background-color: #B71C1C; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex-shrink-0 flex items-center">
+                    <!-- Logo Placeholder -->
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 bg-earnest-red text-white flex items-center justify-center font-bold text-xl rounded">ES</div>
+                        <span class="font-bold text-2xl tracking-tighter text-gray-900">EARNEST <span class="text-earnest-red">SOLUTIONS</span></span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-gray-700 hover:text-earnest-red font-semibold transition">About Tim</a>
+                    <a href="#process" class="text-gray-700 hover:text-earnest-red font-semibold transition">Our Process</a>
+                    <a href="#audit" class="bg-earnest-red text-white px-6 py-2 rounded-full font-bold hover-bg-earnest-dark transition shadow-lg">Get Free Audit</a>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-gray-700 hover:text-earnest-red focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <a href="#about" class="block px-4 py-3 text-gray-700 hover:bg-gray-100">About Tim</a>
+            <a href="#process" class="block px-4 py-3 text-gray-700 hover:bg-gray-100">Our Process</a>
+            <a href="#audit" class="block px-4 py-3 text-earnest-red font-bold hover:bg-gray-100">Get Free Audit</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative bg-white pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
+                <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-7 lg:text-left">
+                    <div class="inline-block px-4 py-1 mb-4 rounded-full bg-red-100 border border-red-200">
+                        <span class="text-earnest-red font-bold text-sm uppercase tracking-wide">The Insider Advantage</span>
+                    </div>
+                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
+                        I Spent 25 Years <br class="hidden lg:block" />
+                        <span class="text-earnest-red">Learning Their Playbook.</span>
+                    </h1>
+                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl font-medium">
+                        Now, I'm handing it to you. Stop guessing why your supplements get rejected. Hire the team led by the insurance veteran who used to train the adjusters.
+                    </p>
+                    <div class="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
+                        <a href="#audit" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-md text-white bg-earnest-red hover-bg-earnest-dark md:text-lg md:px-10 shadow-xl transform transition hover:-translate-y-1">
+                            Review My Denied Claim
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                        <p class="mt-3 text-sm text-gray-400">No contract required. First audit is free.</p>
+                    </div>
+                </div>
+                <div class="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-5 lg:flex lg:items-center">
+                    <div class="relative mx-auto w-full rounded-lg shadow-2xl lg:max-w-md overflow-hidden border-4 border-white">
+                        <div class="bg-gray-800 h-96 w-full flex items-end justify-center relative">
+                            <!-- Placeholder for Tim's Image -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 z-10"></div>
+                            <img src="/api/placeholder/500/600" alt="Tim Schneider" class="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition duration-700">
+                            <div class="relative z-20 text-center pb-6">
+                                <h3 class="text-white text-2xl font-bold">Tim Schneider</h3>
+                                <p class="text-red-400 font-semibold uppercase tracking-widest text-sm">Founder, Earnest Solutions</p>
+                                <p class="text-gray-300 text-xs mt-1">25 Years Insurance Experience</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative Red Shape -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-red-50 opacity-50 blur-3xl"></div>
+    </section>
+
+    <!-- The Problem / Agitation Section -->
+    <section class="py-16 bg-gray-900 text-white clip-path-slant">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold sm:text-4xl">The Deck Is Stacked Against You</h2>
+                <p class="mt-4 text-xl text-gray-400">Most roofers leave 20-30% of profit on the table because they don't speak "Adjuster."</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-earnest-red transition duration-300">
+                    <div class="w-14 h-14 mx-auto bg-red-900/50 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-times text-earnest-red text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">"That's Included in Waste"</h3>
+                    <p class="text-gray-400">The most common lie in the industry. We know the exact Xactimate codes that prove it isn't.</p>
+                </div>
+                <div class="p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-earnest-red transition duration-300">
+                    <div class="w-14 h-14 mx-auto bg-red-900/50 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-file-invoice-dollar text-earnest-red text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Missing O&P</h3>
+                    <p class="text-gray-400">If you are managing multiple trades, you deserve Overhead & Profit. We build the case to get it released.</p>
+                </div>
+                <div class="p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-earnest-red transition duration-300">
+                    <div class="w-14 h-14 mx-auto bg-red-900/50 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-clock text-earnest-red text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Cash Flow Stalled</h3>
+                    <p class="text-gray-400">Supplements sitting in "Review" for weeks? We know the internal escalation triggers to get files moved.</p>
+                </div>
+            </div>
+        </div>
+        <div class="h-16"></div> <!-- Spacer for slant -->
+    </section>
+
+    <!-- The Solution / Authority Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-6">
+                        Why Hiring a "Turncoat" is Your <span class="text-earnest-red">Best Business Move</span>
+                    </h2>
+                    <div class="space-y-6 text-lg text-gray-600">
+                        <p>
+                            Hi, I'm <strong>Tim Schneider</strong>. For 25 years, I worked for the insurance carriers. I wrote the policies. I trained the adjusters. I know exactly how to navigate the system to <strong>Maximize Payout</strong> on every file.
+                        </p>
+                        <p>
+                            5 years ago, I switched sides. I founded <strong>Earnest Solutions</strong> to bring that internal knowledge to roofers who fight for fair market value.
+                        </p>
+                        <p>
+                            We are an <strong>EPC Company</strong> (Engineering, Procurement, Construction). We don't write "estimates." We build engineering-backed construction plans that insurance carriers cannot logically refute.
+                        </p>
+                    </div>
+                    <div class="mt-8 grid grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-earnest-red text-xl mr-2"></i>
+                            <span class="font-bold text-gray-800">25 Years Experience</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-earnest-red text-xl mr-2"></i>
+                            <span class="font-bold text-gray-800">Xactimate Experts</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-earnest-red text-xl mr-2"></i>
+                            <span class="font-bold text-gray-800">Code Compliance</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-earnest-red text-xl mr-2"></i>
+                            <span class="font-bold text-gray-800">Higher Approval Rates</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-10 lg:mt-0">
+                    <div class="bg-gray-50 border-l-8 border-earnest-red p-8 shadow-lg rounded-r-lg">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">The Earnest Guarantee</h3>
+                        <p class="text-gray-600 mb-6">
+                            We don't get paid unless we add value. We operate with total transparency. Send us a file, let us work our process, and see the difference in your bottom line.
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl font-black text-gray-200">01</div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Upload Scope</h4>
+                                <p class="text-sm text-gray-500">Send us the insurance scope & photos.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 mt-4">
+                            <div class="text-4xl font-black text-gray-200">02</div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">We Find the Gaps</h4>
+                                <p class="text-sm text-gray-500">We identify missing code items & labor.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 mt-4">
+                            <div class="text-4xl font-black text-gray-200">03</div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">You Get Paid</h4>
+                                <p class="text-sm text-gray-500">We provide the supplement package for you to submit.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof / Funnel Stats -->
+    <section class="bg-earnest-red py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
+                <div>
+                    <div class="text-4xl font-black mb-1">25+</div>
+                    <div class="text-red-100 uppercase text-xs tracking-wider">Years Experience</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-black mb-1">$50M+</div>
+                    <div class="text-red-100 uppercase text-xs tracking-wider">Claim Value Recovered</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-black mb-1">1000s</div>
+                    <div class="text-red-100 uppercase text-xs tracking-wider">Supplements Approved</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-black mb-1">50 State</div>
+                    <div class="text-red-100 uppercase text-xs tracking-wider">Coverage Capability</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lead Capture Section (The Funnel) -->
+    <section id="audit" class="py-20 bg-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <div class="bg-gray-900 py-6 px-8 text-center">
+                    <h2 class="text-2xl font-bold text-white">The "Blind Spot" Audit</h2>
+                    <p class="text-gray-400 text-sm mt-1">Find out exactly how much money you left on the table last month.</p>
+                </div>
+                <div class="p-8 md:p-12">
+                    <div class="text-center mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Get a FREE Review of a Denied Supplement</h3>
+                        <p class="text-gray-600">Upload a recent summary or denied estimate. Tim and his team will review it and record a personal video showing you exactly what was missed and why.</p>
+                    </div>
+
+                    <!-- 
+                        FORMSPREE INTEGRATION 
+                        1. Go to https://formspree.io/
+                        2. Create a Free Account
+                        3. Create a New Form
+                        4. Copy the "Endpoint" URL they give you (e.g. https://formspree.io/f/xvqnorqk)
+                        5. Paste it below where it says 'REPLACE_WITH_YOUR_FORMSPREE_ID'
+                    -->
+                    <form id="auditForm" action="https://formspree.io/f/mgovnlka" method="POST" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                                <input type="text" id="name" name="name" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-earnest-red focus:border-earnest-red bg-gray-50" placeholder="John Roofer" required>
+                            </div>
+                            <div>
+                                <label for="company" class="block text-sm font-medium text-gray-700">Company Name</label>
+                                <input type="text" id="company" name="company" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-earnest-red focus:border-earnest-red bg-gray-50" placeholder="Apex Roofing LLC" required>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                                <input type="email" id="email" name="email" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-earnest-red focus:border-earnest-red bg-gray-50" placeholder="john@apexroofing.com" required>
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-earnest-red focus:border-earnest-red bg-gray-50" placeholder="(555) 123-4567" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="volume" class="block text-sm font-medium text-gray-700">Monthly Job Volume</label>
+                            <select id="volume" name="volume" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-earnest-red focus:border-earnest-red bg-gray-50">
+                                <option>1-5 Jobs/mo</option>
+                                <option>5-15 Jobs/mo</option>
+                                <option>15-30 Jobs/mo</option>
+                                <option>30+ Jobs/mo</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-earnest-red hover-bg-earnest-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition transform hover:scale-[1.02]">
+                            SEND ME MY AUDIT
+                        </button>
+                        
+                        <p id="formStatus" class="text-center font-bold text-sm hidden"></p>
+
+                        <p class="text-xs text-center text-gray-500 mt-4">
+                            Your information is secure. We hate spam as much as we hate bad adjusters.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-center text-gray-900 mb-12">Roofers Who Switched to Earnest</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="text-earnest-red">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic mb-4">"I used to fight adjusters for hours just to get $200. Tim's team found $4,500 on a single claim just by citing the correct manufacturer code. I'll never write my own supplements again."</p>
+                    <div class="font-bold text-gray-900">- Mike T., Texas</div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="text-earnest-red">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic mb-4">"The EPC approach is real. Adjusters treat our files differently now because they look like engineering documents, not just estimates. Earnest Solutions changed our business model."</p>
+                    <div class="font-bold text-gray-900">- Sarah L., Colorado</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="md:flex md:justify-between">
+                <div class="mb-8 md:mb-0">
+                    <span class="font-bold text-2xl tracking-tighter">EARNEST <span class="text-earnest-red">SOLUTIONS</span></span>
+                    <p class="mt-2 text-gray-400 text-sm max-w-xs">Fighting for fair value with 25 years of insurance industry experience.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-8 sm:gap-12">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Services</h3>
+                        <ul class="mt-4 space-y-4">
+                            <li><a href="#" class="text-base text-gray-400 hover:text-white">Supplementing</a></li>
+                            <li><a href="#" class="text-base text-gray-400 hover:text-white">Estimating</a></li>
+                            <li><a href="#" class="text-base text-gray-400 hover:text-white">Claim Audits</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Contact</h3>
+                        <ul class="mt-4 space-y-4">
+                            <li class="flex items-center text-gray-400"><i class="fas fa-envelope mr-2"></i> info@earnestsolutions.com</li>
+                            <li class="flex items-center text-gray-400"><i class="fas fa-phone mr-2"></i> (555) ROOF-HELP</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-gray-800 pt-8 text-center text-xs text-gray-500">
+                <p>&copy; 2024 Earnest Solutions. All rights reserved.</p>
+                <p class="mt-2">Disclaimer: Earnest Solutions provides construction consulting and estimating services. We assist with scope and pricing validation. We do not offer public adjusting services or interpret insurance policy coverage.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Form Submission Script (Formspree) -->
+    <script>
+        const form = document.getElementById("auditForm");
+        
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const status = document.getElementById("formStatus");
+            const btn = document.getElementById('submitBtn');
+            const data = new FormData(event.target);
+            
+            // Check if Formspree ID has been set
+            if(form.action.includes('REPLACE_WITH')) {
+                alert("Please add your Formspree ID to the HTML code (Line 389) before testing!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            fetch(event.target.action, {
+                method: form.method,
+                body: data,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    status.innerHTML = "Thanks for your submission! We'll be in touch.";
+                    status.classList.remove('hidden', 'text-red-600');
+                    status.classList.add('text-green-600');
+                    btn.innerHTML = 'SENT';
+                    form.reset()
+                } else {
+                    response.json().then(data => {
+                        if (Object.hasOwn(data, 'errors')) {
+                            status.innerHTML = data["errors"].map(error => error["message"]).join(", ")
+                        } else {
+                            status.innerHTML = "Oops! There was a problem submitting your form"
+                        }
+                        status.classList.remove('hidden', 'text-green-600');
+                        status.classList.add('text-red-600');
+                        btn.disabled = false;
+                        btn.innerHTML = 'SEND ME MY AUDIT';
+                    })
+                }
+            }).catch(error => {
+                status.innerHTML = "Oops! There was a problem submitting your form"
+                status.classList.remove('hidden', 'text-green-600');
+                status.classList.add('text-red-600');
+                btn.disabled = false;
+                btn.innerHTML = 'SEND ME MY AUDIT';
+            });
+        }
+        form.addEventListener("submit", handleSubmit)
+    </script>
+
+</body>
+</html>
