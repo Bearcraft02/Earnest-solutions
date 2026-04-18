@@ -528,6 +528,17 @@
         let markers = [];
         let userMarker;
 
+        function getStraightLineDistance(lat1, lon1, lat2, lon2) {
+            const R = 3958.8; // Miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
         function switchView(view) {
             const listToggle = document.getElementById('listToggle');
             const mapToggle = document.getElementById('mapToggle');
@@ -550,12 +561,9 @@
 
         function initMap() {
             if (map) return;
-            // Initialize Leaflet Map with a sharp Dark look
             map = L.map('map', { attributionControl: false }).setView([37.0902, -95.7129], 4);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
             updateMarkers(fieldData);
-            
-            // Adjust Leaflet sizing if switching tabs
             setTimeout(() => { map.invalidateSize(); }, 100);
         }
 
@@ -577,7 +585,7 @@
 
         function findNearestByDriveTime() {
             if (!navigator.geolocation) {
-                alert("Geolocation not supported on this device.");
+                alert("Geolocation not supported.");
                 return;
             }
 
@@ -585,23 +593,31 @@
             const bannerText = document.getElementById('closest-field-text');
             const findBtn = document.getElementById('findBtn');
             
-            findBtn.innerText = "Analyzing Coordinates...";
-            bannerText.innerText = "TRIANGULATING STRIKE TEAM LOCATION...";
+            findBtn.innerText = "TRIANGULATING...";
+            bannerText.innerText = "LOCATING CURRENT POSITION...";
             banner.classList.remove('hidden');
 
             navigator.geolocation.getCurrentPosition((position) => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
 
-                // Add User Marker to tactical map
-                if (userMarker) map.removeLayer(userMarker);
-                userMarker = L.circleMarker([userLat, userLng], { 
-                    radius: 12, fillColor: "#fff", color: "#2dd4bf", weight: 4, opacity: 1, fillOpacity: 1 
-                }).addTo(map).bindPopup("<b class='text-black uppercase'>Your Position</b>").openPopup();
+                // 1. Calculate straight line distances and pick top 5
+                const fieldsWithDistances = fieldData.map((f, i) => ({
+                    ...f,
+                    index: i,
+                    linearDist: getStraightLineDistance(userLat, userLng, f.lat, f.lng)
+                }));
 
-                // Run Google Distance Matrix Service to find actual Drive Time
+                const top5Fields = fieldsWithDistances
+                    .sort((a, b) => a.linearDist - b.linearDist)
+                    .slice(0, 5);
+
+                // UI Update
+                bannerText.innerText = "CALCULATING FASTEST DRIVE TIME FOR TOP 5 FIELDS...";
+
+                // 2. Ask Google for drive time on just these 5
                 const service = new google.maps.DistanceMatrixService();
-                const destinations = fieldData.map(f => new google.maps.LatLng(f.lat, f.lng));
+                const destinations = top5Fields.map(f => new google.maps.LatLng(f.lat, f.lng));
                 const origin = new google.maps.LatLng(userLat, userLng);
 
                 service.getDistanceMatrix({
@@ -613,26 +629,36 @@
                     if (status === 'OK') {
                         const results = response.rows[0].elements;
                         let minDuration = Infinity;
-                        let closestIdx = -1;
+                        let winnerIndex = -1;
 
                         results.forEach((res, i) => {
                             if (res.status === "OK" && res.duration.value < minDuration) {
                                 minDuration = res.duration.value;
-                                closestIdx = i;
+                                winnerIndex = i;
                             }
                         });
 
-                        if (closestIdx !== -1) {
-                            const closestField = fieldData[closestIdx];
-                            const data = results[closestIdx];
-                            bannerText.innerHTML = `NEAREST FIELD BY DRIVE TIME: <span class="text-teal-400">${closestField.name}</span> (${data.duration.text} / ${data.distance.text})`;
+                        if (winnerIndex !== -1) {
+                            const winningField = top5Fields[winnerIndex];
+                            const travelData = results[winnerIndex];
                             
-                            // Fly to the closest field
-                            map.flyTo([closestField.lat, closestField.lng], 11);
+                            // Map visual update
+                            if (userMarker) map.removeLayer(userMarker);
+                            userMarker = L.circleMarker([userLat, userLng], { 
+                                radius: 12, fillColor: "#fff", color: "#2dd4bf", weight: 4, opacity: 1, fillOpacity: 1 
+                            }).addTo(map).bindPopup("<b class='text-black uppercase'>Your Position</b>").openPopup();
+
+                            bannerText.innerHTML = `FASTEST FIELD BY DRIVE TIME: <span class="text-teal-400">${winningField.name}</span> (${travelData.duration.text} / ${travelData.distance.text})`;
                             
-                            // Highlight specific marker
-                            const marker = markers[closestIdx];
-                            if (marker) marker.openPopup();
+                            map.flyTo([winningField.lat, winningField.lng], 11);
+                            
+                            // Open the specific winner marker
+                            // We need to find the correct marker in the original markers array using field name or coordinates
+                            const originalMarker = markers.find(m => {
+                                const latLng = m.getLatLng();
+                                return Math.abs(latLng.lat - winningField.lat) < 0.0001;
+                            });
+                            if (originalMarker) originalMarker.openPopup();
                         }
                     } else {
                         bannerText.innerText = "ERROR: DRIVE TIME CALCULATION FAILED.";
@@ -641,9 +667,9 @@
                 });
 
             }, (err) => {
-                bannerText.innerText = "ACCESS DENIED: ENABLE LOCATION SERVICES IN BROWSER.";
+                bannerText.innerText = "ACCESS DENIED: PLEASE ENABLE LOCATION.";
                 findBtn.innerText = "FIND CLOSEST FIELD";
-            }, { timeout: 10000, enableHighAccuracy: true });
+            }, { timeout: 8000, enableHighAccuracy: true });
         }
 
         function clearLocation() {
