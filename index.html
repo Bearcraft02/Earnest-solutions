@@ -196,14 +196,28 @@
             color: #000;
         }
 
+        /* Tactical Leaflet Popups */
         .leaflet-popup-content-wrapper {
-            background: #111;
-            color: #fff;
-            border: 1px solid var(--rogue-teal);
+            background: #050505 !important;
+            color: #fff !important;
+            border: 2px solid var(--rogue-teal) !important;
+            padding: 0 !important;
+            border-radius: 4px !important;
+            overflow: hidden;
+        }
+
+        .leaflet-popup-content {
+            margin: 0 !important;
+            width: 260px !important;
         }
 
         .leaflet-popup-tip {
-            background: var(--rogue-teal);
+            background: var(--rogue-teal) !important;
+        }
+
+        .leaflet-container a.leaflet-popup-close-button {
+            color: #fff !important;
+            padding: 8px !important;
         }
     </style>
 </head>
@@ -305,6 +319,7 @@
                             <th class="p-4 uppercase text-sm">State</th>
                             <th class="p-4 uppercase text-sm">Field Name</th>
                             <th class="p-4 uppercase text-sm">Street Address</th>
+                            <th class="p-4 uppercase text-sm">Contact</th>
                             <th class="p-4 uppercase text-sm">Official Website</th>
                         </tr>
                     </thead>
@@ -312,11 +327,10 @@
                 </table>
             </div>
 
-            <!-- Map View Container (Leaflet style UI with Google Data Backend) -->
+            <!-- Map View Container -->
             <div id="map-view" class="hidden">
                 <div id="map-container">
                     <div id="map"></div>
-                    <!-- Find My Location Button on Map -->
                     <button id="findBtn" onclick="findNearestByDriveTime()" class="absolute bottom-6 right-6 z-[1000] bg-teal-500 text-black px-6 py-3 rounded-full font-black uppercase text-xs shadow-2xl hover:scale-105 active:scale-95 transition flex items-center gap-2 border-2 border-black">
                         <i class="fa-solid fa-car-side"></i> Find Closest (Drive Time)
                     </button>
@@ -464,7 +478,7 @@
             </div>
             <div class="flex flex-col items-center gap-2">
                 <span class="text-xs uppercase tracking-widest text-zinc-500">Call/Text to talk to us</span>
-                <a href="tel:6822449170" class="text-3xl md:text-4xl font-black text-white tracking-tighter">682.244.9170</a>
+                <a href="tel:6822449170" class="text-3xl md:text-4xl font-black text-white tracking-tighter hover:text-teal-400 transition">682.244.9170</a>
             </div>
             <div class="pt-8 border-t border-zinc-800">
                 <p class="text-[10px] text-zinc-600 uppercase tracking-[0.2em]">&copy; 2024 Rogue Paintball. Tickets non-refundable.</p>
@@ -476,52 +490,52 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const fieldData = [
-            { state: 'CA', name: 'Hollywood Sports Park', address: '9030 Somerset Blvd, Bellflower, CA 90706', url: 'https://www.hollywoodsports.com', lat: 33.8837, lng: -118.1215 },
-            { state: 'CA', name: 'SC Village', address: '8900 McCarty Rd, Chino, CA 91708', url: 'https://www.scvillage.com', lat: 33.9189, lng: -117.6534 },
-            { state: 'CA', name: 'Paintball USA', address: '15112 Sierra Hwy, Santa Clarita, CA 91390', url: 'https://www.paintballusa.org', lat: 34.4208, lng: -118.5222 },
-            { state: 'CA', name: 'Combat Paintball Park', address: '31050 Charlie Canyon Rd, Castaic, CA 91384', url: 'https://www.playcpp.com', lat: 34.5028, lng: -118.6186 },
-            { state: 'CA', name: 'Warped Paintball', address: '34481 Ridge Route Rd, Castaic, CA 91384', url: 'https://www.warpedpaintballpark.com', lat: 34.4842, lng: -118.6312 },
-            { state: 'CA', name: 'Ambush Paintball', address: '8643 Shekell Rd, Moorpark, CA 93021', url: 'https://www.ambushpaintballpark.com', lat: 34.2855, lng: -118.8820 },
-            { state: 'CA', name: 'Stryker Paintball & Airsoft', address: '14316 Edwards Canyon Rd, Santa Paula, CA 93060', url: 'https://www.strykerpa.com', lat: 34.3542, lng: -119.0593 },
-            { state: 'CA', name: 'The Shack', address: '1564 Frontage Rd, Santa Maria, CA 93454', url: 'https://www.theshackpaintball.com', lat: 34.9530, lng: -120.4357 },
-            { state: 'CA', name: 'Giant San Diego', address: '1800 Wildcat Canyon Rd, Lakeside, CA 92040', url: 'https://www.giantpaintball.com', lat: 32.8573, lng: -116.9222 },
-            { state: 'CA', name: 'Playland Paintball', address: '221 Browns Valley Rd, Petaluma, CA 94952', url: 'https://www.playland707.com', lat: 38.2324, lng: -122.6367 },
-            { state: 'CA', name: 'Davis Paintball', address: '24998 Co Rd 102, Davis, CA 95618', url: 'https://www.davispaintball.com', lat: 38.5449, lng: -121.7405 },
-            { state: 'CA', name: 'Sunol Paintball', address: '7800 Kilkare Rd, Sunol, CA 94586', url: 'https://www.sunolpaintball.com', lat: 37.5941, lng: -121.8883 },
-            { state: 'CA', name: 'Tag Paintball', address: 'Hollister, CA 95023', url: 'https://www.tag1984.com', lat: 36.8525, lng: -121.4016 },
-            { state: 'AZ', name: 'American Paintball Coliseum', address: '2915 E Washington St, Phoenix, AZ 85034', url: 'https://www.americanpaintballcoliseum.com', lat: 33.4484, lng: -112.0220 },
-            { state: 'CO', name: 'American Paintball Coliseum', address: '5095 Peoria St, Denver, CO 80239', url: 'https://www.americanpaintballcoliseum.com', lat: 39.7392, lng: -104.9903 },
-            { state: 'CO', name: 'American Paintball Coliseum', address: '102 E Garden of the Gods Rd, CO Springs, CO 80907', url: 'https://www.americanpaintballcoliseum.com', lat: 38.8339, lng: -104.8214 },
-            { state: 'CO', name: 'American Paintball Coliseum', address: '15530 E 120th Ave, Brighton, CO 80603', url: 'https://www.americanpaintballcoliseum.com', lat: 39.9853, lng: -104.8203 },
-            { state: 'TX', name: 'Giant Party Sports', address: '13100 Hwy 121, Allen, TX 75013', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
-            { state: 'TX', name: 'Fort Paintball', address: '13100 Hwy 121, Allen, TX 75013', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
-            { state: 'TX', name: 'Collin County Paintball', address: '2433 Co Rd 371, Anna, TX 75409', url: 'https://www.collincountypaintballpark.com', lat: 33.3484, lng: -96.5517 },
-            { state: 'TX', name: 'Hunt County Paintball', address: '9601 FM 1568, Greenville, TX 75402', url: 'https://www.huntcountypaintball.com', lat: 33.1385, lng: -96.1108 },
-            { state: 'TX', name: 'Cousins Forney', address: '8975 FM 740, Forney, TX 75126', url: 'https://www.cousinspaintball.com', lat: 32.7301, lng: -96.4852 },
-            { state: 'TX', name: 'Madd Dogz Paintball', address: '4100 US-287, Waxahachie, TX 75165', url: 'https://www.madddogz.com', lat: 32.3865, lng: -96.8483 },
-            { state: 'TX', name: '878 Airsoft', address: '4100 US-287, Waxahachie, TX 75165', url: 'https://www.878airsoft.com', lat: 32.3865, lng: -96.8483 },
-            { state: 'TX', name: 'What\'z-Up Paintball', address: '14316 Edwards Canyon Rd, Seven Points, TX 75143', url: 'https://www.whatzuppaintball.com', lat: 32.3335, lng: -96.2089 },
-            { state: 'TX', name: 'Xfactor Paintball', address: '13100 Hwy 121, San Antonio, TX 78201', url: 'https://xfactorballpark.com', lat: 29.4241, lng: -98.4936 },
-            { state: 'TX', name: 'Survival Game of Texas', address: '2309 Aldine Mail Rte Rd, Houston, TX 77039', url: 'https://www.survivalgameoftexas.com', lat: 29.7604, lng: -95.3698 },
-            { state: 'LA', name: 'Guerrilla Warfare Paintball', address: 'Baton Rouge, LA', url: 'http://www.guerrillawarfarepaintball.com', lat: 30.4515, lng: -91.1871 },
-            { state: 'NY', name: 'Cousins Long Island - Vets Park', address: '5789 Rt 25, Calverton, NY 11933', url: 'https://www.cousinspaintball. NY 11933', lat: 40.9163, lng: -72.7667 },
-            { state: 'NY', name: 'Cousins Long Island - Edwards Ave', address: '407 Edwards Ave, Calverton, NY 11933', url: 'https://www.cousinspaintball. NY 11933', lat: 40.9113, lng: -72.7844 },
-            { state: 'NY', name: 'Cousins Staten Island', address: '2727 Arthur Kill Rd, Staten Island, NY 10309', url: 'https://www.cousinspaintball.com', lat: 40.5401, lng: -74.2185 },
-            { state: 'NY', name: 'MSG Paintball Field', address: '636 NY-17M, Middletown, NY 10940', url: 'https://www.msgpaintball.com', lat: 41.4459, lng: -74.4232 },
-            { state: 'NJ', name: 'Cousins Manchester', address: '750 Rt 539, Manchester, NJ 08759', url: 'https://www.cousinspaintball.com', lat: 39.9547, lng: -74.3986 },
-            { state: 'NJ', name: 'Cousins Fireball Mountain', address: '295 Meany Rd, Wrightstown, NJ 08562', url: 'https://www.cousinspaintball.com', lat: 40.0469, lng: -74.6064 },
-            { state: 'NJ', name: 'Battlecreek Paintball', address: '625 Macopin Rd, West Milford, NJ 07480', url: 'https://www.battlecreekpaintballnj.com', lat: 41.1323, lng: -74.3643 },
-            { state: 'MD', name: 'Northeast Adventure Paintball', address: 'North East, MD', url: 'https://www.neapaintball.com', lat: 39.5996, lng: -75.9416 },
-            { state: 'MD', name: 'Southern Maryland Paintball', address: 'Newburg, MD', url: 'https://www.southernmdpaintball.com', lat: 38.3846, lng: -76.9427 },
-            { state: 'MA', name: 'High Voltage Paintball', address: 'Holbrook, MA', url: 'https://www.highvoltagepaintball.com', lat: 42.1487, lng: -71.0101 },
-            { state: 'MA', name: 'P&L Paintball', address: 'Bridgewater, MA', url: 'https://www.pnlpaintball.com', lat: 41.9904, lng: -70.9750 },
-            { state: 'CT', name: 'Matt\'s Outback Paintball', address: 'Coventry, CT', url: 'http://www.mattsoutback.com', lat: 41.7709, lng: -72.3087 },
-            { state: 'FL', name: 'Jungle Games', address: 'Lutz, FL', url: 'https://www.facebook.com/junglegames', lat: 28.1511, lng: -82.4615 },
-            { state: 'FL', name: 'Warrior Sports Park', address: '2100 Eastbrook Blvd, Orlando, FL 32817', url: 'https://www.warriorsportspark.com', lat: 28.5925, lng: -81.2589 },
-            { state: 'FL', name: 'Orlando Paintball', address: '7215 Rose Ave, Orlando, FL 32810', url: 'https://www.orlandopaintball.com', lat: 28.6001, lng: -81.4285 },
-            { state: 'FL', name: 'Battle Ground Orlando', address: 'Orlando, FL', url: 'https://www.battlegroundorlando.com', lat: 28.5383, lng: -81.3792 },
-            { state: 'VA', name: 'Cousins Strasburg', address: '363 Radio Station Rd, Strasburg, VA 22657', url: 'https://www.cousinspaintball.com', lat: 38.9959, lng: -78.3615 },
-            { state: 'VA', name: 'Cousins Stephens City Party Center', address: '4490 Valley Ave, Stephens City, VA 22655', url: 'https://www.cousinspaintball.com', lat: 39.0881, lng: -78.2131 }
+            { state: 'CA', name: 'Hollywood Sports Park', address: '9030 Somerset Blvd, Bellflower, CA 90706', phone: '562-867-9600', url: 'https://www.hollywoodsports.com', lat: 33.8837, lng: -118.1215 },
+            { state: 'CA', name: 'SC Village', address: '8900 McCarty Rd, Chino, CA 91708', phone: '562-867-9600', url: 'https://www.scvillage.com', lat: 33.9189, lng: -117.6534 },
+            { state: 'CA', name: 'Paintball USA', address: '15112 Sierra Hwy, Santa Clarita, CA 91390', phone: '661-255-5332', url: 'https://www.paintballusa.org', lat: 34.4208, lng: -118.5222 },
+            { state: 'CA', name: 'Combat Paintball Park', address: '31050 Charlie Canyon Rd, Castaic, CA 91384', phone: '800-289-3277', url: 'https://www.playcpp.com', lat: 34.5028, lng: -118.6186 },
+            { state: 'CA', name: 'Warped Paintball', address: '34481 Ridge Route Rd, Castaic, CA 91384', phone: '661-450-9400', url: 'https://www.warpedpaintballpark.com', lat: 34.4842, lng: -118.6312 },
+            { state: 'CA', name: 'Ambush Paintball', address: '8643 Shekell Rd, Moorpark, CA 93021', phone: '805-250-1373', url: 'https://www.ambushpaintballpark.com', lat: 34.2855, lng: -118.8820 },
+            { state: 'CA', name: 'Stryker Paintball & Airsoft', address: '14316 Edwards Canyon Rd, Santa Paula, CA 93060', phone: '805-312-3298', url: 'https://www.strykerpa.com', lat: 34.3542, lng: -119.0593 },
+            { state: 'CA', name: 'The Shack', address: '1564 Frontage Rd, Santa Maria, CA 93454', phone: '805-922-2615', url: 'https://www.theshackpaintball.com', lat: 34.9530, lng: -120.4357 },
+            { state: 'CA', name: 'Giant San Diego', address: '1800 Wildcat Canyon Rd, Lakeside, CA 92040', phone: '619-328-9494', url: 'https://www.giantpaintball.com', lat: 32.8573, lng: -116.9222 },
+            { state: 'CA', name: 'Playland Paintball', address: '221 Browns Valley Rd, Petaluma, CA 94952', phone: '707-763-1456', url: 'https://www.playland707.com', lat: 38.2324, lng: -122.6367 },
+            { state: 'CA', name: 'Davis Paintball', address: '24998 Co Rd 102, Davis, CA 95618', phone: '530-757-7700', url: 'https://www.davispaintball.com', lat: 38.5449, lng: -121.7405 },
+            { state: 'CA', name: 'Sunol Paintball', address: '7800 Kilkare Rd, Sunol, CA 94586', phone: '408-591-5330', url: 'https://www.sunolpaintball.com', lat: 37.5941, lng: -121.8883 },
+            { state: 'CA', name: 'Tag Paintball', address: 'Hollister, CA 95023', phone: '408-842-4523', url: 'https://www.tag1984.com', lat: 36.8525, lng: -121.4016 },
+            { state: 'AZ', name: 'American Paintball Coliseum', address: '2915 E Washington St, Phoenix, AZ 85034', phone: '602-275-5285', url: 'https://www.americanpaintballcoliseum.com', lat: 33.4484, lng: -112.0220 },
+            { state: 'CO', name: 'American Paintball Coliseum', address: '5095 Peoria St, Denver, CO 80239', phone: '303-298-8573', url: 'https://www.americanpaintballcoliseum.com', lat: 39.7392, lng: -104.9903 },
+            { state: 'CO', name: 'American Paintball Coliseum', address: '102 E Garden of the Gods Rd, CO Springs, CO 80907', phone: '303-298-8573', url: 'https://www.americanpaintballcoliseum.com', lat: 38.8339, lng: -104.8214 },
+            { state: 'CO', name: 'American Paintball Coliseum', address: '15530 E 120th Ave, Brighton, CO 80603', phone: '303-298-8573', url: 'https://www.americanpaintballcoliseum.com', lat: 39.9853, lng: -104.8203 },
+            { state: 'TX', name: 'Giant Party Sports', address: '13100 Hwy 121, Allen, TX 75013', phone: '972-731-0100', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
+            { state: 'TX', name: 'Fort Paintball', address: '13100 Hwy 121, Allen, TX 75013', phone: '972-731-0100', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
+            { state: 'TX', name: 'Collin County Paintball', address: '2433 Co Rd 371, Anna, TX 75409', phone: '972-352-8700', url: 'https://www.collincountypaintballpark.com', lat: 33.3484, lng: -96.5517 },
+            { state: 'TX', name: 'Hunt County Paintball', address: '9601 FM 1568, Greenville, TX 75402', phone: '903-455-5241', url: 'https://www.huntcountypaintball.com', lat: 33.1385, lng: -96.1108 },
+            { state: 'TX', name: 'Cousins Forney', address: '8975 FM 740, Forney, TX 75126', phone: '972-564-9133', url: 'https://www.cousinspaintball.com', lat: 32.7301, lng: -96.4852 },
+            { state: 'TX', name: 'Madd Dogz Paintball', address: '4100 US-287, Waxahachie, TX 75165', phone: '972-937-3780', url: 'https://www.madddogz.com', lat: 32.3865, lng: -96.8483 },
+            { state: 'TX', name: '878 Airsoft', address: '4100 US-287, Waxahachie, TX 75165', phone: '972-937-3780', url: 'https://www.878airsoft.com', lat: 32.3865, lng: -96.8483 },
+            { state: 'TX', name: 'What\'z-Up Paintball', address: '14316 Edwards Canyon Rd, Seven Points, TX 75143', phone: '903-778-4333', url: 'https://www.whatzuppaintball.com', lat: 32.3335, lng: -96.2089 },
+            { state: 'TX', name: 'Xfactor Paintball', address: '13100 Hwy 121, San Antonio, TX 78201', phone: '210-661-4500', url: 'https://xfactorballpark.com', lat: 29.4241, lng: -98.4936 },
+            { state: 'TX', name: 'Survival Game of Texas', address: '2309 Aldine Mail Rte Rd, Houston, TX 77039', phone: '281-442-2284', url: 'https://www.survivalgameoftexas.com', lat: 29.7604, lng: -95.3698 },
+            { state: 'LA', name: 'Guerrilla Warfare Paintball', address: 'Baton Rouge, LA', phone: '225-241-1181', url: 'http://www.guerrillawarfarepaintball.com', lat: 30.4515, lng: -91.1871 },
+            { state: 'NY', name: 'Cousins Long Island - Vets Park', address: '5789 Rt 25, Calverton, NY 11933', phone: '631-727-4340', url: 'https://www.cousinspaintball.com', lat: 40.9163, lng: -72.7667 },
+            { state: 'NY', name: 'Cousins Long Island - Edwards Ave', address: '407 Edwards Ave, Calverton, NY 11933', phone: '631-727-4340', url: 'https://www.cousinspaintball.com', lat: 40.9113, lng: -72.7844 },
+            { state: 'NY', name: 'Cousins Staten Island', address: '2727 Arthur Kill Rd, Staten Island, NY 10309', phone: '718-227-2400', url: 'https://www.cousinspaintball.com', lat: 40.5401, lng: -74.2185 },
+            { state: 'NY', name: 'MSG Paintball Field', address: '636 NY-17M, Middletown, NY 10940', phone: '845-457-4678', url: 'https://www.msgpaintball.com', lat: 41.4459, lng: -74.4232 },
+            { state: 'NJ', name: 'Cousins Manchester', address: '750 Rt 539, Manchester, NJ 08759', phone: '732-244-9000', url: 'https://www.cousinspaintball.com', lat: 39.9547, lng: -74.3986 },
+            { state: 'NJ', name: 'Cousins Fireball Mountain', address: '295 Meany Rd, Wrightstown, NJ 08562', phone: '800-600-3077', url: 'https://www.cousinspaintball.com', lat: 40.0469, lng: -74.6064 },
+            { state: 'NJ', name: 'Battlecreek Paintball', address: '625 Macopin Rd, West Milford, NJ 07480', phone: '973-545-2556', url: 'https://www.battlecreekpaintballnj.com', lat: 41.1323, lng: -74.3643 },
+            { state: 'MD', name: 'Northeast Adventure Paintball', address: 'North East, MD', phone: '410-287-2104', url: 'https://www.neapaintball.com', lat: 39.5996, lng: -75.9416 },
+            { state: 'MD', name: 'Southern Maryland Paintball', address: 'Newburg, MD', phone: '301-932-7999', url: 'https://www.southernmdpaintball.com', lat: 38.3846, lng: -76.9427 },
+            { state: 'MA', name: 'High Voltage Paintball', address: 'Holbrook, MA', phone: '781-767-5400', url: 'https://www.highvoltagepaintball.com', lat: 42.1487, lng: -71.0101 },
+            { state: 'MA', name: 'P&L Paintball', address: 'Bridgewater, MA', phone: '508-697-5359', url: 'https://www.pnlpaintball.com', lat: 41.9904, lng: -70.9750 },
+            { state: 'CT', name: 'Matt\'s Outback Paintball', address: 'Coventry, CT', phone: '860-742-0210', url: 'http://www.mattsoutback.com', lat: 41.7709, lng: -72.3087 },
+            { state: 'FL', name: 'Jungle Games', address: 'Lutz, FL', phone: '813-948-2612', url: 'https://www.facebook.com/junglegames', lat: 28.1511, lng: -82.4615 },
+            { state: 'FL', name: 'Warrior Sports Park', address: '2100 Eastbrook Blvd, Orlando, FL 32817', phone: '407-353-8401', url: 'https://www.warriorsportspark.com', lat: 28.5925, lng: -81.2589 },
+            { state: 'FL', name: 'Orlando Paintball', address: '7215 Rose Ave, Orlando, FL 32810', phone: '407-294-0694', url: 'https://www.orlandopaintball.com', lat: 28.6001, lng: -81.4285 },
+            { state: 'FL', name: 'Battle Ground Orlando', address: 'Orlando, FL', phone: '407-550-1033', url: 'https://www.battlegroundorlando.com', lat: 28.5383, lng: -81.3792 },
+            { state: 'VA', name: 'Cousins Strasburg', address: '363 Radio Station Rd, Strasburg, VA 22657', phone: '540-465-9440', url: 'https://www.cousinspaintball.com', lat: 38.9959, lng: -78.3615 },
+            { state: 'VA', name: 'Cousins Stephens City Party Center', address: '4490 Valley Ave, Stephens City, VA 22655', phone: '540-868-8247', url: 'https://www.cousinspaintball.com', lat: 39.0881, lng: -78.2131 }
         ];
 
         let map;
@@ -573,12 +587,22 @@
             data.forEach((field, index) => {
                 const marker = L.marker([field.lat, field.lng]).addTo(map);
                 marker.bindPopup(`
-                    <div class="p-1">
-                        <b class="uppercase text-sm text-white">${field.name}</b><br>
-                        <span class="text-[10px] text-zinc-400 font-bold block mb-1">${field.address}</span>
-                        <a href="${field.url}" target="_blank" class="bg-teal-600 text-white px-2 py-1 block text-center rounded font-bold text-[10px] uppercase">Field Rules</a>
+                    <div class="bg-zinc-950 p-3 rounded border border-teal-500/40 min-w-[220px] overflow-hidden shadow-2xl">
+                        <b class="uppercase text-lg text-white block mb-1 font-bold leading-tight" style="font-family: 'Montserrat', sans-serif;">${field.name}</b>
+                        <div class="text-zinc-400 text-[10px] leading-tight mb-3 uppercase tracking-wider font-medium">${field.address}</div>
+                        <div class="flex flex-col gap-2">
+                            <a href="${field.url}" target="_blank" class="bg-teal-500 text-black text-center py-2 rounded font-black text-[10px] uppercase tracking-tighter hover:bg-white transition flex items-center justify-center gap-1 shadow-lg shadow-teal-500/20">
+                                <i class="fa-solid fa-globe text-[8px]"></i> Visit Website
+                            </a>
+                            <a href="tel:${field.phone}" class="border border-teal-500/50 text-teal-400 text-center py-2 rounded font-black text-[10px] uppercase tracking-tighter hover:bg-teal-500 hover:text-black transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-phone text-[8px]"></i> Call Field: ${field.phone}
+                            </a>
+                        </div>
                     </div>
-                `);
+                `, {
+                    maxWidth: 300,
+                    className: 'rogue-popup'
+                });
                 markers.push(marker);
             });
         }
@@ -593,15 +617,14 @@
             const bannerText = document.getElementById('closest-field-text');
             const findBtn = document.getElementById('findBtn');
             
-            findBtn.innerText = "TRIANGULATING...";
-            bannerText.innerText = "LOCATING CURRENT POSITION...";
+            findBtn.innerText = "SCANNING LOCATIONS...";
+            bannerText.innerText = "ANALYZING AREA DATA...";
             banner.classList.remove('hidden');
 
             navigator.geolocation.getCurrentPosition((position) => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
 
-                // 1. Calculate straight line distances to find top 5 candidate fields
                 const fieldsWithDistances = fieldData.map((f, i) => ({
                     ...f,
                     index: i,
@@ -612,19 +635,16 @@
                     .sort((a, b) => a.linearDist - b.linearDist)
                     .slice(0, 5);
 
-                // UI Update
-                bannerText.innerText = "CHECKING TRAFFIC FOR THE 5 NEAREST LOCATIONS...";
+                bannerText.innerText = "QUERYING REAL-TIME TRAFFIC DATA...";
 
-                // 2. Query Google Distance Matrix for actual drive times on just these 5
                 const service = new google.maps.DistanceMatrixService();
                 const destinations = top5Fields.map(f => new google.maps.LatLng(f.lat, f.lng));
                 const origin = new google.maps.LatLng(userLat, userLng);
 
-                // Add User Marker to tactical map
                 if (userMarker) map.removeLayer(userMarker);
                 userMarker = L.circleMarker([userLat, userLng], { 
                     radius: 12, fillColor: "#fff", color: "#2dd4bf", weight: 4, opacity: 1, fillOpacity: 1 
-                }).addTo(map).bindPopup("<b class='text-black uppercase'>Your Position</b>").openPopup();
+                }).addTo(map).bindPopup("<b class='text-black uppercase'>Current Location</b>").openPopup();
 
                 service.getDistanceMatrix({
                     origins: [origin],
@@ -635,7 +655,6 @@
                     let finalWinner = null;
                     let travelData = null;
 
-                    // CASE A: Google API works
                     if (status === 'OK' && response.rows[0]) {
                         const results = response.rows[0].elements;
                         let minDuration = Infinity;
@@ -651,18 +670,16 @@
                         if (winnerIndex !== -1) {
                             finalWinner = top5Fields[winnerIndex];
                             travelData = results[winnerIndex];
-                            bannerText.innerHTML = `FASTEST ARRIVAL: <span class="text-teal-400">${finalWinner.name}</span> (${travelData.duration.text} / ${travelData.distance.text})`;
+                            bannerText.innerHTML = `OPTIMAL DEPLOYMENT: <span class="text-teal-400 font-black">${finalWinner.name}</span> (${travelData.duration.text} / ${travelData.distance.text})`;
                         }
                     }
 
-                    // CASE B: Google API Fails (Quota/Blocked/No Route) - Fallback to linear distance
                     if (!finalWinner) {
-                        finalWinner = top5Fields[0]; // Geographically closest
-                        bannerText.innerHTML = `NEAREST FIELD: <span class="text-teal-400">${finalWinner.name}</span> (approx. ${finalWinner.linearDist.toFixed(1)} miles)`;
+                        finalWinner = top5Fields[0]; 
+                        bannerText.innerHTML = `NEAREST FIELD DETECTED: <span class="text-teal-400 font-black">${finalWinner.name}</span> (approx. ${finalWinner.linearDist.toFixed(1)} miles)`;
                     }
 
-                    // Map result UI
-                    map.flyTo([finalWinner.lat, finalWinner.lng], 11);
+                    map.flyTo([finalWinner.lat, finalWinner.lng], 12);
                     const originalMarker = markers.find(m => {
                         const latLng = m.getLatLng();
                         return Math.abs(latLng.lat - finalWinner.lat) < 0.0001;
@@ -673,7 +690,7 @@
                 });
 
             }, (err) => {
-                bannerText.innerText = "ACCESS DENIED: PLEASE ENABLE LOCATION.";
+                bannerText.innerText = "ERROR: LOCATION ACCESS DENIED.";
                 findBtn.innerText = "FIND CLOSEST FIELD";
             }, { timeout: 10000, enableHighAccuracy: true });
         }
@@ -690,7 +707,16 @@
             tbody.innerHTML = '';
             data.forEach(item => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td class="p-4 font-bold text-teal-500">${item.state}</td><td class="p-4 text-white font-bold">${item.name}</td><td class="p-4 text-zinc-400 italic">${item.address}</td><td class="p-4 text-xs font-mono"><a href="${item.url}" target="_blank" class="text-teal-400 hover:underline">VISIT SITE</a></td>`;
+                row.innerHTML = `
+                    <td class="p-4 font-bold text-teal-500">${item.state}</td>
+                    <td class="p-4 text-white font-bold">${item.name}</td>
+                    <td class="p-4 text-zinc-400 italic">${item.address}</td>
+                    <td class="p-4 font-bold text-teal-400">
+                        <a href="tel:${item.phone}" class="hover:underline">${item.phone}</a>
+                    </td>
+                    <td class="p-4 text-xs font-mono">
+                        <a href="${item.url}" target="_blank" class="text-teal-400 hover:underline">VISIT SITE</a>
+                    </td>`;
                 tbody.appendChild(row);
             });
         }
