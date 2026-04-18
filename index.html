@@ -257,9 +257,9 @@
                 <div class="pt-4 border-t border-teal-500/30 flex flex-col items-center gap-1">
                     <div class="flex items-center gap-2 text-teal-400">
                         <i class="fa-solid fa-hand-holding-heart text-xl"></i>
-                        <span class="stencil text-xl tracking-wider">Mission: Giving Back</span>
+                        <span class="stencil text-xl tracking-wider">Mission: Field Support</span>
                     </div>
-                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-white">10% of Revenue goes to Charity each year</p>
+                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-white">15% of Revenue goes to the Fields</p>
                 </div>
             </div>
         </div>
@@ -318,7 +318,7 @@
                         <tr>
                             <th class="p-4 uppercase text-sm">State</th>
                             <th class="p-4 uppercase text-sm">Field Name</th>
-                            <th class="p-4 uppercase text-sm">Street Address</th>
+                            <th class="p-4 uppercase text-sm hidden sm:table-cell">Street Address</th>
                             <th class="p-4 uppercase text-sm">Contact</th>
                             <th class="p-4 uppercase text-sm">Official Website</th>
                         </tr>
@@ -406,7 +406,7 @@
             </div>
         </section>
 
-        <!-- HOW TO USE SECTION (Corrected to cOfFqLnOr12) -->
+        <!-- HOW TO USE SECTION -->
         <section class="mt-20 border-t border-zinc-800 pt-16">
             <div class="text-center mb-10"><h2 class="text-5xl stencil text-teal-400">How to use</h2></div>
             <div class="max-w-3xl mx-auto">
@@ -422,7 +422,7 @@
                 <h2 class="text-5xl stencil">Intel From the Field</h2>
             </div>
             <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                <!-- MISSION BRIEFING SECTION (Corrected to cOfFqknOrhe) -->
+                <!-- MISSION BRIEFING SECTION -->
                 <div class="referral-card cost-card rounded-xl p-6 space-y-4 border-zinc-800">
                     <div class="screenpal-embed-wrapper h-48 mb-4">
                         <iframe src="https://go.screenpal.com/player/cOfFqknOrhe" allowfullscreen scrolling="no"></iframe>
@@ -476,7 +476,7 @@
             </div>
             <div class="bg-zinc-900/50 border border-teal-500/20 p-4 rounded-lg">
                 <p class="text-teal-400 font-bold uppercase text-xs tracking-widest mb-1">Our Commitment</p>
-                <p class="text-sm text-zinc-400 uppercase tracking-widest">10% of Revenue goes to Charity each year</p>
+                <p class="text-sm text-zinc-400 uppercase tracking-widest">15% of Revenue goes to the Fields</p>
             </div>
             <div class="flex flex-col items-center gap-2">
                 <span class="text-xs uppercase tracking-widest text-zinc-500">Call/Text to talk to us</span>
@@ -627,6 +627,7 @@
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
 
+                // Step 1: Find top 5 candidate fields by geographic distance
                 const fieldsWithDistances = fieldData.map((f, i) => ({
                     ...f,
                     index: i,
@@ -639,6 +640,7 @@
 
                 bannerText.innerText = "QUERYING FASTEST DRIVE TIME FOR TOP 5 FIELDS...";
 
+                // Step 2: Use Google Maps logic in background for drive time on those 5
                 const service = new google.maps.DistanceMatrixService();
                 const destinations = top5Fields.map(f => new google.maps.LatLng(f.lat, f.lng));
                 const origin = new google.maps.LatLng(userLat, userLng);
@@ -676,6 +678,7 @@
                         }
                     }
 
+                    // Fallback to closest geographic if Google logic fails
                     if (!finalWinner) {
                         finalWinner = top5Fields[0]; 
                         bannerText.innerHTML = `NEAREST FIELD: <span class="text-teal-400 font-black">${finalWinner.name}</span> (approx. ${finalWinner.linearDist.toFixed(1)} miles)`;
@@ -712,7 +715,7 @@
                 row.innerHTML = `
                     <td class="p-4 font-bold text-teal-500">${item.state}</td>
                     <td class="p-4 text-white font-bold">${item.name}</td>
-                    <td class="p-4 text-zinc-400 italic">${item.address}</td>
+                    <td class="p-4 text-zinc-400 italic hidden sm:table-cell">${item.address}</td>
                     <td class="p-4 font-bold text-teal-400">
                         <a href="tel:${item.phone}" class="hover:underline">${item.phone}</a>
                     </td>
