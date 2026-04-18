@@ -405,12 +405,12 @@
             </div>
         </section>
 
-        <!-- HOW TO USE -->
+        <!-- HOW TO USE SECTION (Updated back to cOfFqknOrhe) -->
         <section class="mt-20 border-t border-zinc-800 pt-16">
             <div class="text-center mb-10"><h2 class="text-5xl stencil text-teal-400">How to use</h2></div>
             <div class="max-w-3xl mx-auto">
                 <div class="screenpal-embed-wrapper">
-                    <iframe src="https://go.screenpal.com/player/cOfFqLnOr12" allowfullscreen scrolling="no" allow="encrypted-media *;"></iframe>
+                    <iframe src="https://go.screenpal.com/player/cOfFqknOrhe" allowfullscreen scrolling="no" allow="encrypted-media *;"></iframe>
                 </div>
             </div>
         </section>
@@ -423,7 +423,7 @@
             <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 <div class="referral-card cost-card rounded-xl p-6 space-y-4 border-zinc-800">
                     <div class="screenpal-embed-wrapper h-48 mb-4">
-                        <iframe src="https://go.screenpal.com/player/cOfFqLnOr12" allowfullscreen scrolling="no"></iframe>
+                        <iframe src="https://go.screenpal.com/player/cOfFqknOrhe" allowfullscreen scrolling="no"></iframe>
                     </div>
                     <h4 class="font-black uppercase tracking-tighter text-teal-400">Mission Briefing</h4>
                     <p class="text-xs text-zinc-400 italic font-bold">"I bought 6 Packs now i am getting 3 more"</p>
@@ -449,7 +449,7 @@
     <!-- Payment -->
     <section class="py-12 bg-black border-y border-zinc-900">
         <div class="max-w-6xl mx-auto px-6 text-center text-white">
-            <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8 text-white">Booth Payment Methods Accepted</p>
+            <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Booth Payment Methods Accepted</p>
             <div class="payment-icons-container flex flex-wrap justify-center items-center gap-10 opacity-70">
                 <i class="fa-brands fa-cc-visa text-4xl"></i>
                 <i class="fa-brands fa-cc-mastercard text-4xl"></i>
@@ -587,7 +587,7 @@
             data.forEach((field, index) => {
                 const marker = L.marker([field.lat, field.lng]).addTo(map);
                 marker.bindPopup(`
-                    <div class="bg-zinc-950 p-3 rounded border border-teal-500/40 min-w-[220px] overflow-hidden shadow-2xl">
+                    <div class="bg-zinc-950 p-3 rounded border border-teal-500/40 min-w-[240px] overflow-hidden shadow-2xl">
                         <b class="uppercase text-lg text-white block mb-1 font-bold leading-tight" style="font-family: 'Montserrat', sans-serif;">${field.name}</b>
                         <div class="text-zinc-400 text-[10px] leading-tight mb-3 uppercase tracking-wider font-medium">${field.address}</div>
                         <div class="flex flex-col gap-2">
@@ -617,14 +617,15 @@
             const bannerText = document.getElementById('closest-field-text');
             const findBtn = document.getElementById('findBtn');
             
-            findBtn.innerText = "SCANNING LOCATIONS...";
-            bannerText.innerText = "ANALYZING AREA DATA...";
+            findBtn.innerText = "TRIANGULATING...";
+            bannerText.innerText = "LOCATING CURRENT POSITION...";
             banner.classList.remove('hidden');
 
             navigator.geolocation.getCurrentPosition((position) => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
 
+                // Step 1: Find top 5 candidate fields by geographic distance
                 const fieldsWithDistances = fieldData.map((f, i) => ({
                     ...f,
                     index: i,
@@ -635,8 +636,9 @@
                     .sort((a, b) => a.linearDist - b.linearDist)
                     .slice(0, 5);
 
-                bannerText.innerText = "QUERYING REAL-TIME TRAFFIC DATA...";
+                bannerText.innerText = "QUERYING FASTEST DRIVE TIME FOR TOP 5 FIELDS...";
 
+                // Step 2: Use Google Maps logic in background for drive time on those 5
                 const service = new google.maps.DistanceMatrixService();
                 const destinations = top5Fields.map(f => new google.maps.LatLng(f.lat, f.lng));
                 const origin = new google.maps.LatLng(userLat, userLng);
@@ -644,7 +646,7 @@
                 if (userMarker) map.removeLayer(userMarker);
                 userMarker = L.circleMarker([userLat, userLng], { 
                     radius: 12, fillColor: "#fff", color: "#2dd4bf", weight: 4, opacity: 1, fillOpacity: 1 
-                }).addTo(map).bindPopup("<b class='text-black uppercase'>Current Location</b>").openPopup();
+                }).addTo(map).bindPopup("<b class='text-black uppercase'>Your Position</b>").openPopup();
 
                 service.getDistanceMatrix({
                     origins: [origin],
@@ -670,13 +672,14 @@
                         if (winnerIndex !== -1) {
                             finalWinner = top5Fields[winnerIndex];
                             travelData = results[winnerIndex];
-                            bannerText.innerHTML = `OPTIMAL DEPLOYMENT: <span class="text-teal-400 font-black">${finalWinner.name}</span> (${travelData.duration.text} / ${travelData.distance.text})`;
+                            bannerText.innerHTML = `FASTEST ARRIVAL: <span class="text-teal-400 font-black">${finalWinner.name}</span> (${travelData.duration.text} / ${travelData.distance.text})`;
                         }
                     }
 
+                    // Fallback to closest geographic if Google logic fails
                     if (!finalWinner) {
                         finalWinner = top5Fields[0]; 
-                        bannerText.innerHTML = `NEAREST FIELD DETECTED: <span class="text-teal-400 font-black">${finalWinner.name}</span> (approx. ${finalWinner.linearDist.toFixed(1)} miles)`;
+                        bannerText.innerHTML = `NEAREST FIELD: <span class="text-teal-400 font-black">${finalWinner.name}</span> (approx. ${finalWinner.linearDist.toFixed(1)} miles)`;
                     }
 
                     map.flyTo([finalWinner.lat, finalWinner.lng], 12);
@@ -690,7 +693,7 @@
                 });
 
             }, (err) => {
-                bannerText.innerText = "ERROR: LOCATION ACCESS DENIED.";
+                bannerText.innerText = "ACCESS DENIED: ENABLE LOCATION SERVICES.";
                 findBtn.innerText = "FIND CLOSEST FIELD";
             }, { timeout: 10000, enableHighAccuracy: true });
         }
