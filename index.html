@@ -331,6 +331,7 @@
             <div id="map-view" class="hidden">
                 <div id="map-container">
                     <div id="map"></div>
+                    <!-- Find My Location Button on Map -->
                     <button id="findBtn" onclick="findNearestByDriveTime()" class="absolute bottom-6 right-6 z-[1000] bg-teal-500 text-black px-6 py-3 rounded-full font-black uppercase text-xs shadow-2xl hover:scale-105 active:scale-95 transition flex items-center gap-2 border-2 border-black">
                         <i class="fa-solid fa-car-side"></i> Find Closest (Drive Time)
                     </button>
@@ -405,12 +406,12 @@
             </div>
         </section>
 
-        <!-- HOW TO USE SECTION (Updated back to cOfFqknOrhe) -->
+        <!-- HOW TO USE SECTION (Corrected to cOfFqLnOr12) -->
         <section class="mt-20 border-t border-zinc-800 pt-16">
             <div class="text-center mb-10"><h2 class="text-5xl stencil text-teal-400">How to use</h2></div>
             <div class="max-w-3xl mx-auto">
                 <div class="screenpal-embed-wrapper">
-                    <iframe src="https://go.screenpal.com/player/cOfFqknOrhe" allowfullscreen scrolling="no" allow="encrypted-media *;"></iframe>
+                    <iframe src="https://go.screenpal.com/player/cOfFqLnOr12" allowfullscreen scrolling="no" allow="encrypted-media *;"></iframe>
                 </div>
             </div>
         </section>
@@ -421,6 +422,7 @@
                 <h2 class="text-5xl stencil">Intel From the Field</h2>
             </div>
             <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <!-- MISSION BRIEFING SECTION (Corrected to cOfFqknOrhe) -->
                 <div class="referral-card cost-card rounded-xl p-6 space-y-4 border-zinc-800">
                     <div class="screenpal-embed-wrapper h-48 mb-4">
                         <iframe src="https://go.screenpal.com/player/cOfFqknOrhe" allowfullscreen scrolling="no"></iframe>
@@ -449,7 +451,7 @@
     <!-- Payment -->
     <section class="py-12 bg-black border-y border-zinc-900">
         <div class="max-w-6xl mx-auto px-6 text-center text-white">
-            <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Booth Payment Methods Accepted</p>
+            <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8 text-white">Booth Payment Methods Accepted</p>
             <div class="payment-icons-container flex flex-wrap justify-center items-center gap-10 opacity-70">
                 <i class="fa-brands fa-cc-visa text-4xl"></i>
                 <i class="fa-brands fa-cc-mastercard text-4xl"></i>
@@ -625,7 +627,6 @@
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
 
-                // Step 1: Find top 5 candidate fields by geographic distance
                 const fieldsWithDistances = fieldData.map((f, i) => ({
                     ...f,
                     index: i,
@@ -638,7 +639,6 @@
 
                 bannerText.innerText = "QUERYING FASTEST DRIVE TIME FOR TOP 5 FIELDS...";
 
-                // Step 2: Use Google Maps logic in background for drive time on those 5
                 const service = new google.maps.DistanceMatrixService();
                 const destinations = top5Fields.map(f => new google.maps.LatLng(f.lat, f.lng));
                 const origin = new google.maps.LatLng(userLat, userLng);
@@ -676,7 +676,6 @@
                         }
                     }
 
-                    // Fallback to closest geographic if Google logic fails
                     if (!finalWinner) {
                         finalWinner = top5Fields[0]; 
                         bannerText.innerHTML = `NEAREST FIELD: <span class="text-teal-400 font-black">${finalWinner.name}</span> (approx. ${finalWinner.linearDist.toFixed(1)} miles)`;
@@ -693,7 +692,7 @@
                 });
 
             }, (err) => {
-                bannerText.innerText = "ACCESS DENIED: ENABLE LOCATION SERVICES.";
+                bannerText.innerText = "ACCESS DENIED: PLEASE ENABLE LOCATION.";
                 findBtn.innerText = "FIND CLOSEST FIELD";
             }, { timeout: 10000, enableHighAccuracy: true });
         }
