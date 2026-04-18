@@ -504,8 +504,8 @@
             { state: 'TX', name: 'Xfactor Paintball', address: '13100 Hwy 121, San Antonio, TX 78201', url: 'https://xfactorballpark.com', lat: 29.4241, lng: -98.4936 },
             { state: 'TX', name: 'Survival Game of Texas', address: '2309 Aldine Mail Rte Rd, Houston, TX 77039', url: 'https://www.survivalgameoftexas.com', lat: 29.7604, lng: -95.3698 },
             { state: 'LA', name: 'Guerrilla Warfare Paintball', address: 'Baton Rouge, LA', url: 'http://www.guerrillawarfarepaintball.com', lat: 30.4515, lng: -91.1871 },
-            { state: 'NY', name: 'Cousins Long Island - Vets Park', address: '5789 Rt 25, Calverton, NY 11933', url: 'https://www.cousinspaintball.com', lat: 40.9163, lng: -72.7667 },
-            { state: 'NY', name: 'Cousins Long Island - Edwards Ave', address: '407 Edwards Ave, Calverton, NY 11933', url: 'https://www.cousinspaintball.com', lat: 40.9113, lng: -72.7844 },
+            { state: 'NY', name: 'Cousins Long Island - Vets Park', address: '5789 Rt 25, Calverton, NY 11933', url: 'https://www.cousinspaintball. NY 11933', lat: 40.9163, lng: -72.7667 },
+            { state: 'NY', name: 'Cousins Long Island - Edwards Ave', address: '407 Edwards Ave, Calverton, NY 11933', url: 'https://www.cousinspaintball. NY 11933', lat: 40.9113, lng: -72.7844 },
             { state: 'NY', name: 'Cousins Staten Island', address: '2727 Arthur Kill Rd, Staten Island, NY 10309', url: 'https://www.cousinspaintball.com', lat: 40.5401, lng: -74.2185 },
             { state: 'NY', name: 'MSG Paintball Field', address: '636 NY-17M, Middletown, NY 10940', url: 'https://www.msgpaintball.com', lat: 41.4459, lng: -74.4232 },
             { state: 'NJ', name: 'Cousins Manchester', address: '750 Rt 539, Manchester, NJ 08759', url: 'https://www.cousinspaintball.com', lat: 39.9547, lng: -74.3986 },
@@ -601,7 +601,7 @@
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
 
-                // 1. Calculate straight line distances and pick top 5
+                // 1. Calculate straight line distances to find top 5 candidate fields
                 const fieldsWithDistances = fieldData.map((f, i) => ({
                     ...f,
                     index: i,
@@ -613,12 +613,18 @@
                     .slice(0, 5);
 
                 // UI Update
-                bannerText.innerText = "CALCULATING FASTEST DRIVE TIME FOR TOP 5 FIELDS...";
+                bannerText.innerText = "CHECKING TRAFFIC FOR THE 5 NEAREST LOCATIONS...";
 
-                // 2. Ask Google for drive time on just these 5
+                // 2. Query Google Distance Matrix for actual drive times on just these 5
                 const service = new google.maps.DistanceMatrixService();
                 const destinations = top5Fields.map(f => new google.maps.LatLng(f.lat, f.lng));
                 const origin = new google.maps.LatLng(userLat, userLng);
+
+                // Add User Marker to tactical map
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.circleMarker([userLat, userLng], { 
+                    radius: 12, fillColor: "#fff", color: "#2dd4bf", weight: 4, opacity: 1, fillOpacity: 1 
+                }).addTo(map).bindPopup("<b class='text-black uppercase'>Your Position</b>").openPopup();
 
                 service.getDistanceMatrix({
                     origins: [origin],
@@ -626,7 +632,11 @@
                     travelMode: 'DRIVING',
                     unitSystem: google.maps.UnitSystem.IMPERIAL
                 }, (response, status) => {
-                    if (status === 'OK') {
+                    let finalWinner = null;
+                    let travelData = null;
+
+                    // CASE A: Google API works
+                    if (status === 'OK' && response.rows[0]) {
                         const results = response.rows[0].elements;
                         let minDuration = Infinity;
                         let winnerIndex = -1;
@@ -639,37 +649,33 @@
                         });
 
                         if (winnerIndex !== -1) {
-                            const winningField = top5Fields[winnerIndex];
-                            const travelData = results[winnerIndex];
-                            
-                            // Map visual update
-                            if (userMarker) map.removeLayer(userMarker);
-                            userMarker = L.circleMarker([userLat, userLng], { 
-                                radius: 12, fillColor: "#fff", color: "#2dd4bf", weight: 4, opacity: 1, fillOpacity: 1 
-                            }).addTo(map).bindPopup("<b class='text-black uppercase'>Your Position</b>").openPopup();
-
-                            bannerText.innerHTML = `FASTEST FIELD BY DRIVE TIME: <span class="text-teal-400">${winningField.name}</span> (${travelData.duration.text} / ${travelData.distance.text})`;
-                            
-                            map.flyTo([winningField.lat, winningField.lng], 11);
-                            
-                            // Open the specific winner marker
-                            // We need to find the correct marker in the original markers array using field name or coordinates
-                            const originalMarker = markers.find(m => {
-                                const latLng = m.getLatLng();
-                                return Math.abs(latLng.lat - winningField.lat) < 0.0001;
-                            });
-                            if (originalMarker) originalMarker.openPopup();
+                            finalWinner = top5Fields[winnerIndex];
+                            travelData = results[winnerIndex];
+                            bannerText.innerHTML = `FASTEST ARRIVAL: <span class="text-teal-400">${finalWinner.name}</span> (${travelData.duration.text} / ${travelData.distance.text})`;
                         }
-                    } else {
-                        bannerText.innerText = "ERROR: DRIVE TIME CALCULATION FAILED.";
                     }
+
+                    // CASE B: Google API Fails (Quota/Blocked/No Route) - Fallback to linear distance
+                    if (!finalWinner) {
+                        finalWinner = top5Fields[0]; // Geographically closest
+                        bannerText.innerHTML = `NEAREST FIELD: <span class="text-teal-400">${finalWinner.name}</span> (approx. ${finalWinner.linearDist.toFixed(1)} miles)`;
+                    }
+
+                    // Map result UI
+                    map.flyTo([finalWinner.lat, finalWinner.lng], 11);
+                    const originalMarker = markers.find(m => {
+                        const latLng = m.getLatLng();
+                        return Math.abs(latLng.lat - finalWinner.lat) < 0.0001;
+                    });
+                    if (originalMarker) originalMarker.openPopup();
+                    
                     findBtn.innerText = "RE-TARGET";
                 });
 
             }, (err) => {
                 bannerText.innerText = "ACCESS DENIED: PLEASE ENABLE LOCATION.";
                 findBtn.innerText = "FIND CLOSEST FIELD";
-            }, { timeout: 8000, enableHighAccuracy: true });
+            }, { timeout: 10000, enableHighAccuracy: true });
         }
 
         function clearLocation() {
