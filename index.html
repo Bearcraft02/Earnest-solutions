@@ -6,27 +6,10 @@
     <title>Rogue Paintball | Field Directory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Leaflet CSS for Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Staatliches&family=Inter:wght@400;700;900&family=Montserrat:wght@700;800&display=swap');
-
-        :root {
-            --rogue-teal: #2dd4bf;
-            --rogue-dark-teal: #134e4a;
-            --rogue-warning: #facc15;
-        }<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rogue Paintball | Field Directory</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Leaflet CSS for that sharp Dark Look -->
+    <!-- Leaflet CSS for tactical Dark Mode UI -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Google Maps API for Distance Calculations Only -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=geometry"></script>
+    <!-- Google Maps API for real-time Drive Time intelligence -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=geometry,places"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Staatliches&family=Inter:wght@400;700;900&family=Montserrat:wght@700;800&display=swap');
 
@@ -274,7 +257,7 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div class="space-y-2">
                 <h2 class="text-5xl stencil">Redeemable Field List</h2>
-                <p class="text-zinc-400 italic">Official participating fields. Drive time calculation powered by Google.</p>
+                <p class="text-zinc-400 italic">Official participating fields. Precision location and real-time traffic data.</p>
             </div>
             
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -307,7 +290,7 @@
 
         <div id="closest-field-banner" class="hidden mb-6 p-4 bg-teal-500/10 border border-teal-500/50 rounded-lg flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <i id="status-icon" class="fa-solid fa-car-side text-teal-400"></i>
+                <i id="status-icon" class="fa-solid fa-location-crosshairs text-teal-400"></i>
                 <p id="closest-field-text" class="text-sm font-bold uppercase tracking-wide"></p>
             </div>
             <button onclick="clearLocation()" class="text-zinc-500 hover:text-white text-xs uppercase font-bold tracking-widest">Clear</button>
@@ -329,664 +312,19 @@
                 </table>
             </div>
 
-            <!-- Map View Container (Leaflet style, Google logic) -->
+            <!-- Map View Container (Leaflet style UI with Google Data Backend) -->
             <div id="map-view" class="hidden">
                 <div id="map-container">
                     <div id="map"></div>
                     <!-- Find My Location Button on Map -->
                     <button id="findBtn" onclick="findNearestByDriveTime()" class="absolute bottom-6 right-6 z-[1000] bg-teal-500 text-black px-6 py-3 rounded-full font-black uppercase text-xs shadow-2xl hover:scale-105 active:scale-95 transition flex items-center gap-2 border-2 border-black">
-                        <i class="fa-solid fa-bolt"></i> Find Closest (Drive Time)
+                        <i class="fa-solid fa-car-side"></i> Find Closest (Drive Time)
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Deployment Info -->
-        <div class="mt-8 p-6 bg-zinc-900 rounded-lg border border-zinc-800 text-sm text-zinc-400 grid md:grid-cols-2 gap-8">
-            <div class="space-y-3">
-                <p class="font-bold text-white uppercase tracking-widest">Deployment Rules:</p>
-                <p><i class="fa-solid fa-calendar-check mr-2 text-teal-500"></i> Call the field 24-48 hours in advance to reserve.</p>
-                <p><i class="fa-solid fa-id-card mr-2 text-teal-500"></i> Present your physical Rogue Ticket for <span class="text-teal-400 font-bold">FREE ALL-DAY ACCESS</span>.</p>
-            </div>
-            <div class="space-y-3">
-                <p class="font-bold text-white uppercase tracking-widest">Typical Field Costs:</p>
-                <div class="flex flex-col gap-1">
-                    <p><i class="fa-solid fa-wind mr-2 text-teal-500"></i> $10 All-Day Air (Refills).</p>
-                    <p class="text-[10px] text-zinc-500 ml-6 italic uppercase tracking-wider">Note: Some fields offer FREE air with paint purchase.</p>
-                </div>
-                <div class="flex flex-col gap-1 mt-2">
-                    <p><i class="fa-solid fa-circle mr-2 text-teal-500"></i> $25 per 500 paintballs (approx).</p>
-                    <p><i class="fa-solid fa-circle-nodes mr-2 text-teal-500"></i> $10 per 100 paintballs (at select sites).</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- VALUE BREAKDOWN -->
-        <section class="mt-20 border-t border-zinc-800 pt-16">
-            <div class="text-center mb-10">
-                <h2 class="text-5xl stencil text-white">Standard Field Cost vs Rogue</h2>
-            </div>
-            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <div class="cost-card p-8 rounded-xl border-zinc-800">
-                    <h3 class="text-2xl stencil text-zinc-500 mb-6">Without Rogue Ticket</h3>
-                    <div class="space-y-4">
-                        <div class="flex justify-between"><span>Field Entry / All Day Access</span><span class="font-bold">$20</span></div>
-                        <div class="flex justify-between"><span>Equipment Rentals</span><span class="font-bold">$20</span></div>
-                        <div class="flex justify-between"><span>500 Paintballs</span><span class="font-bold">$25</span></div>
-                        <div class="flex justify-between"><span>All-Day Air</span><span class="font-bold">$10</span></div>
-                        <div class="border-t border-zinc-700 pt-4 flex justify-between text-2xl font-black text-white"><span>TOTAL COST</span><span>$75</span></div>
-                    </div>
-                </div>
-                <div class="cost-card p-8 rounded-xl border-teal-500/30 relative overflow-hidden text-white">
-                    <div class="absolute top-0 right-0 bg-teal-500 text-black px-4 py-1 stencil text-sm rotate-12 translate-x-3 translate-y-2 shadow-lg">SAVES $40+</div>
-                    <h3 class="text-2xl stencil text-teal-400 mb-6">With Rogue Ticket</h3>
-                    <div class="space-y-3 mb-6">
-                        <div class="flex justify-between text-teal-400 text-sm"><span>FREE All-Day Field Access</span><span class="font-bold uppercase">Waived</span></div>
-                        <div class="flex justify-between text-teal-400 text-sm"><span>Gun</span><span class="font-bold uppercase">Waived</span></div>
-                        <div class="flex justify-between text-teal-400 text-sm"><span>Mask</span><span class="font-bold uppercase">Waived</span></div>
-                        <div class="flex justify-between text-teal-400 text-sm"><span>Goggles</span><span class="font-bold uppercase">Waived</span></div>
-                        <div class="flex justify-between text-teal-400 text-sm border-b border-teal-500/20 pb-2"><span>Safety orientation</span><span class="font-bold uppercase">Waived</span></div>
-                        
-                        <div class="flex justify-between pt-2">
-                            <div class="flex flex-col"><span>Paintball Rounds</span><span class="text-[10px] text-zinc-500 uppercase">100 / 500 Round Options</span></div>
-                            <span class="font-bold">$10 / $25</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <div class="flex flex-col">
-                                <span>All-Day Air</span>
-                                <span class="text-[10px] text-zinc-500 uppercase">FREE at select sites</span>
-                            </div>
-                            <span class="font-bold">$0 / $10</span>
-                        </div>
-                        <div class="border-t border-teal-500/50 pt-4 flex justify-between text-2xl font-black text-teal-400"><span>TOTAL FIELD COST</span><span>$10 - $35</span></div>
-                    </div>
-                    <div class="mt-6 bg-teal-500/10 border border-teal-500/20 p-3 rounded text-center">
-                        <p class="text-[10px] text-teal-400 font-bold uppercase tracking-widest mb-1">Player Intel</p>
-                        <p class="text-[11px] text-zinc-300 italic">100 paintballs typically last the average player 1-2 hours of gameplay.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- HOW TO USE -->
-        <section class="mt-20 border-t border-zinc-800 pt-16">
-            <div class="text-center mb-10"><h2 class="text-5xl stencil text-teal-400">How to use</h2></div>
-            <div class="max-w-3xl mx-auto">
-                <div class="screenpal-embed-wrapper">
-                    <iframe src="https://go.screenpal.com/player/cOfFqLnOr12" allowfullscreen scrolling="no" allow="encrypted-media *;"></iframe>
-                </div>
-            </div>
-        </section>
-
-        <!-- INTEL FROM THE FIELD -->
-        <section class="mt-20 border-t border-zinc-800 pt-16">
-            <div class="text-center mb-10">
-                <h2 class="text-5xl stencil">Intel From the Field</h2>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                <div class="referral-card cost-card rounded-xl p-6 space-y-4 border-zinc-800">
-                    <div class="screenpal-embed-wrapper h-48 mb-4">
-                        <iframe src="https://go.screenpal.com/player/cOfFqLnOr12" allowfullscreen scrolling="no"></iframe>
-                    </div>
-                    <h4 class="font-black uppercase tracking-tighter text-teal-400">Mission Briefing</h4>
-                    <p class="text-xs text-zinc-400 italic font-bold">"I bought 6 Packs now i am getting 3 more"</p>
-                </div>
-                <div class="referral-card cost-card rounded-xl p-6 space-y-4 border-zinc-800">
-                    <div class="screenpal-embed-wrapper h-48 mb-4">
-                        <iframe src="https://go.screenpal.com/player/cOfFq5nOrhI" allowfullscreen scrolling="no"></iframe>
-                    </div>
-                    <h4 class="font-black uppercase tracking-tighter text-teal-400">Squad Report</h4>
-                    <p class="text-xs text-zinc-400 italic font-bold">"100% worth it"</p>
-                </div>
-                <div class="referral-card cost-card rounded-xl p-6 space-y-4 border-zinc-800">
-                    <div class="screenpal-embed-wrapper h-48 mb-4">
-                        <iframe src="https://go.screenpal.com/player/cOfFqEnOrh4" allowfullscreen scrolling="no"></iframe>
-                    </div>
-                    <h4 class="font-black uppercase tracking-tighter text-teal-400">Deployment Intel</h4>
-                    <p class="text-xs text-zinc-400 italic">Real-world testing of the Rogue Ticket at participating fields.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Payment -->
-    <section class="py-12 bg-black border-y border-zinc-900">
-        <div class="max-w-6xl mx-auto px-6 text-center text-white">
-            <p class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-8">Booth Payment Methods Accepted</p>
-            <div class="payment-icons-container flex flex-wrap justify-center items-center gap-10 opacity-70">
-                <i class="fa-brands fa-cc-visa text-4xl"></i>
-                <i class="fa-brands fa-cc-mastercard text-4xl"></i>
-                <i class="fa-brands fa-cc-amex text-4xl"></i>
-                <i class="fa-brands fa-cc-discover text-4xl"></i>
-                <i class="fa-brands fa-cc-apple-pay text-5xl"></i>
-                <i class="fa-brands fa-google-pay text-6xl"></i>
-                <div class="flex items-center font-bold text-2xl gap-2 text-white"><i class="fa-solid fa-dollar-sign"></i>Cash App</div>
-                <div class="flex items-center font-bold text-2xl gap-2 text-white"><i class="fa-brands fa-vimeo-v"></i>Venmo</div>
-                <div class="flex items-center font-bold text-2xl gap-2 text-white"><i class="fa-solid fa-square text-white"></i> Square</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-20 px-6 text-center">
-        <div class="max-w-xl mx-auto space-y-8">
-            <div class="flex justify-center gap-6 text-3xl my-4 text-teal-400">
-                <i class="fa-brands fa-instagram cursor-pointer hover:text-white transition"></i>
-                <i class="fa-brands fa-facebook cursor-pointer hover:text-white transition"></i>
-                <i class="fa-brands fa-tiktok cursor-pointer hover:text-white transition"></i>
-            </div>
-            <div class="bg-zinc-900/50 border border-teal-500/20 p-4 rounded-lg">
-                <p class="text-teal-400 font-bold uppercase text-xs tracking-widest mb-1">Our Commitment</p>
-                <p class="text-sm text-zinc-400 uppercase tracking-widest">10% of Revenue goes to Charity each year</p>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <span class="text-xs uppercase tracking-widest text-zinc-500">Call/Text to talk to us</span>
-                <a href="tel:6822449170" class="text-3xl md:text-4xl font-black text-white tracking-tighter">682.244.9170</a>
-            </div>
-            <div class="pt-8 border-t border-zinc-800">
-                <p class="text-[10px] text-zinc-600 uppercase tracking-[0.2em]">&copy; 2024 Rogue Paintball. Tickets non-refundable.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        const fieldData = [
-            { state: 'CA', name: 'Hollywood Sports Park', address: '9030 Somerset Blvd, Bellflower, CA 90706', url: 'https://www.hollywoodsports.com', lat: 33.8837, lng: -118.1215 },
-            { state: 'CA', name: 'SC Village', address: '8900 McCarty Rd, Chino, CA 91708', url: 'https://www.scvillage.com', lat: 33.9189, lng: -117.6534 },
-            { state: 'CA', name: 'Paintball USA', address: '15112 Sierra Hwy, Santa Clarita, CA 91390', url: 'https://www.paintballusa.org', lat: 34.4208, lng: -118.5222 },
-            { state: 'CA', name: 'Combat Paintball Park', address: '31050 Charlie Canyon Rd, Castaic, CA 91384', url: 'https://www.playcpp.com', lat: 34.5028, lng: -118.6186 },
-            { state: 'CA', name: 'Warped Paintball', address: '34481 Ridge Route Rd, Castaic, CA 91384', url: 'https://www.warpedpaintballpark.com', lat: 34.4842, lng: -118.6312 },
-            { state: 'CA', name: 'Ambush Paintball', address: '8643 Shekell Rd, Moorpark, CA 93021', url: 'https://www.ambushpaintballpark.com', lat: 34.2855, lng: -118.8820 },
-            { state: 'CA', name: 'Stryker Paintball & Airsoft', address: '14316 Edwards Canyon Rd, Santa Paula, CA 93060', url: 'https://www.strykerpa.com', lat: 34.3542, lng: -119.0593 },
-            { state: 'CA', name: 'The Shack', address: '1564 Frontage Rd, Santa Maria, CA 93454', url: 'https://www.theshackpaintball.com', lat: 34.9530, lng: -120.4357 },
-            { state: 'CA', name: 'Giant San Diego', address: '1800 Wildcat Canyon Rd, Lakeside, CA 92040', url: 'https://www.giantpaintball.com', lat: 32.8573, lng: -116.9222 },
-            { state: 'CA', name: 'Playland Paintball', address: '221 Browns Valley Rd, Petaluma, CA 94952', url: 'https://www.playland707.com', lat: 38.2324, lng: -122.6367 },
-            { state: 'CA', name: 'Davis Paintball', address: '24998 Co Rd 102, Davis, CA 95618', url: 'https://www.davispaintball.com', lat: 38.5449, lng: -121.7405 },
-            { state: 'CA', name: 'Sunol Paintball', address: '7800 Kilkare Rd, Sunol, CA 94586', url: 'https://www.sunolpaintball.com', lat: 37.5941, lng: -121.8883 },
-            { state: 'CA', name: 'Tag Paintball', address: 'Hollister, CA 95023', url: 'https://www.tag1984.com', lat: 36.8525, lng: -121.4016 },
-            { state: 'AZ', name: 'American Paintball Coliseum', address: '2915 E Washington St, Phoenix, AZ 85034', url: 'https://www.americanpaintballcoliseum.com', lat: 33.4484, lng: -112.0220 },
-            { state: 'CO', name: 'American Paintball Coliseum', address: '5095 Peoria St, Denver, CO 80239', url: 'https://www.americanpaintballcoliseum.com', lat: 39.7392, lng: -104.9903 },
-            { state: 'CO', name: 'American Paintball Coliseum', address: '102 E Garden of the Gods Rd, CO Springs, CO 80907', url: 'https://www.americanpaintballcoliseum.com', lat: 38.8339, lng: -104.8214 },
-            { state: 'CO', name: 'American Paintball Coliseum', address: '15530 E 120th Ave, Brighton, CO 80603', url: 'https://www.americanpaintballcoliseum.com', lat: 39.9853, lng: -104.8203 },
-            { state: 'TX', name: 'Giant Party Sports', address: '13100 Hwy 121, Allen, TX 75013', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
-            { state: 'TX', name: 'Fort Paintball', address: '13100 Hwy 121, Allen, TX 75013', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
-            { state: 'TX', name: 'Collin County Paintball', address: '2433 Co Rd 371, Anna, TX 75409', url: 'https://www.collincountypaintballpark.com', lat: 33.3484, lng: -96.5517 },
-            { state: 'TX', name: 'Hunt County Paintball', address: '9601 FM 1568, Greenville, TX 75402', url: 'https://www.huntcountypaintball.com', lat: 33.1385, lng: -96.1108 },
-            { state: 'TX', name: 'Cousins Forney', address: '8975 FM 740, Forney, TX 75126', url: 'https://www.cousinspaintball.com', lat: 32.7301, lng: -96.4852 },
-            { state: 'TX', name: 'Madd Dogz Paintball', address: '4100 US-287, Waxahachie, TX 75165', url: 'https://www.madddogz.com', lat: 32.3865, lng: -96.8483 },
-            { state: 'TX', name: '878 Airsoft', address: '4100 US-287, Waxahachie, TX 75165', url: 'https://www.878airsoft.com', lat: 32.3865, lng: -96.8483 },
-            { state: 'TX', name: 'What\'z-Up Paintball', address: '14316 Edwards Canyon Rd, Seven Points, TX 75143', url: 'https://www.whatzuppaintball.com', lat: 32.3335, lng: -96.2089 },
-            { state: 'TX', name: 'Xfactor Paintball', address: '13100 Hwy 121, San Antonio, TX 78201', url: 'https://xfactorballpark.com', lat: 29.4241, lng: -98.4936 },
-            { state: 'TX', name: 'Survival Game of Texas', address: '2309 Aldine Mail Rte Rd, Houston, TX 77039', url: 'https://www.survivalgameoftexas.com', lat: 29.7604, lng: -95.3698 },
-            { state: 'LA', name: 'Guerrilla Warfare Paintball', address: 'Baton Rouge, LA', url: 'http://www.guerrillawarfarepaintball.com', lat: 30.4515, lng: -91.1871 },
-            { state: 'NY', name: 'Cousins Long Island - Vets Park', address: '5789 Rt 25, Calverton, NY 11933', url: 'https://www.cousinspaintball.com', lat: 40.9163, lng: -72.7667 },
-            { state: 'NY', name: 'Cousins Long Island - Edwards Ave', address: '407 Edwards Ave, Calverton, NY 11933', url: 'https://www.cousinspaintball.com', lat: 40.9113, lng: -72.7844 },
-            { state: 'NY', name: 'Cousins Staten Island', address: '2727 Arthur Kill Rd, Staten Island, NY 10309', url: 'https://www.cousinspaintball.com', lat: 40.5401, lng: -74.2185 },
-            { state: 'NY', name: 'MSG Paintball Field', address: '636 NY-17M, Middletown, NY 10940', url: 'https://www.msgpaintball.com', lat: 41.4459, lng: -74.4232 },
-            { state: 'NJ', name: 'Cousins Manchester', address: '750 Rt 539, Manchester, NJ 08759', url: 'https://www.cousinspaintball.com', lat: 39.9547, lng: -74.3986 },
-            { state: 'NJ', name: 'Cousins Fireball Mountain', address: '295 Meany Rd, Wrightstown, NJ 08562', url: 'https://www.cousinspaintball.com', lat: 40.0469, lng: -74.6064 },
-            { state: 'NJ', name: 'Battlecreek Paintball', address: '625 Macopin Rd, West Milford, NJ 07480', url: 'https://www.battlecreekpaintballnj.com', lat: 41.1323, lng: -74.3643 },
-            { state: 'MD', name: 'Northeast Adventure Paintball', address: 'North East, MD', url: 'https://www.neapaintball.com', lat: 39.5996, lng: -75.9416 },
-            { state: 'MD', name: 'Southern Maryland Paintball', address: 'Newburg, MD', url: 'https://www.southernmdpaintball.com', lat: 38.3846, lng: -76.9427 },
-            { state: 'MA', name: 'High Voltage Paintball', address: 'Holbrook, MA', url: 'https://www.highvoltagepaintball.com', lat: 42.1487, lng: -71.0101 },
-            { state: 'MA', name: 'P&L Paintball', address: 'Bridgewater, MA', url: 'https://www.pnlpaintball.com', lat: 41.9904, lng: -70.9750 },
-            { state: 'CT', name: 'Matt\'s Outback Paintball', address: 'Coventry, CT', url: 'http://www.mattsoutback.com', lat: 41.7709, lng: -72.3087 },
-            { state: 'FL', name: 'Jungle Games', address: 'Lutz, FL', url: 'https://www.facebook.com/junglegames', lat: 28.1511, lng: -82.4615 },
-            { state: 'FL', name: 'Warrior Sports Park', address: '2100 Eastbrook Blvd, Orlando, FL 32817', url: 'https://www.warriorsportspark.com', lat: 28.5925, lng: -81.2589 },
-            { state: 'FL', name: 'Orlando Paintball', address: '7215 Rose Ave, Orlando, FL 32810', url: 'https://www.orlandopaintball.com', lat: 28.6001, lng: -81.4285 },
-            { state: 'FL', name: 'Battle Ground Orlando', address: 'Orlando, FL', url: 'https://www.battlegroundorlando.com', lat: 28.5383, lng: -81.3792 },
-            { state: 'VA', name: 'Cousins Strasburg', address: '363 Radio Station Rd, Strasburg, VA 22657', url: 'https://www.cousinspaintball.com', lat: 38.9959, lng: -78.3615 },
-            { state: 'VA', name: 'Cousins Stephens City Party Center', address: '4490 Valley Ave, Stephens City, VA 22655', url: 'https://www.cousinspaintball.com', lat: 39.0881, lng: -78.2131 }
-        ];
-
-        let map;
-        let markers = [];
-        let userMarker;
-
-        function switchView(view) {
-            const listToggle = document.getElementById('listToggle');
-            const mapToggle = document.getElementById('mapToggle');
-            const listView = document.getElementById('list-view');
-            const mapView = document.getElementById('map-view');
-            
-            if (view === 'list') {
-                listToggle.classList.add('active');
-                mapToggle.classList.remove('active');
-                listView.classList.remove('hidden');
-                mapView.classList.add('hidden');
-            } else {
-                mapToggle.classList.add('active');
-                listToggle.classList.remove('active');
-                listView.classList.add('hidden');
-                mapView.classList.remove('hidden');
-                initMap();
-            }
-        }
-
-        function initMap() {
-            if (map) return;
-            map = L.map('map', { attributionControl: false }).setView([37.0902, -95.7129], 4);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
-            updateMarkers(fieldData);
-            
-            // Fix Leaflet sizing issue when switching tabs
-            setTimeout(() => { map.invalidateSize(); }, 100);
-        }
-
-        function updateMarkers(data) {
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-            data.forEach(field => {
-                const marker = L.marker([field.lat, field.lng]).addTo(map);
-                marker.bindPopup(`
-                    <div class="p-1">
-                        <b class="uppercase text-sm text-white">${field.name}</b><br>
-                        <span class="text-[10px] text-zinc-400 font-bold block mb-1">${field.address}</span>
-                        <a href="${field.url}" target="_blank" class="bg-teal-600 text-white px-2 py-1 block text-center rounded font-bold text-[10px] uppercase">Field Rules</a>
-                    </div>
-                `);
-                markers.push(marker);
-            });
-        }
-
-        function findNearestByDriveTime() {
-            if (!navigator.geolocation) return;
-
-            const banner = document.getElementById('closest-field-banner');
-            const bannerText = document.getElementById('closest-field-text');
-            const findBtn = document.getElementById('findBtn');
-            
-            findBtn.innerText = "Analyzing Drive Times...";
-            bannerText.innerText = "SCANNING FOR NEAREST FIELD...";
-            banner.classList.remove('hidden');
-
-            navigator.geolocation.getCurrentPosition((position) => {
-                const userLat = position.coords.latitude;
-                const userLng = position.coords.longitude;
-
-                // Mark User Location on Leaflet Map
-                if (userMarker) map.removeLayer(userMarker);
-                userMarker = L.circleMarker([userLat, userLng], { 
-                    radius: 10, fillColor: "#fff", color: "#2dd4bf", weight: 3, opacity: 1, fillOpacity: 1 
-                }).addTo(map).bindPopup("<b class='text-black'>STRIKE TEAM</b>").openPopup();
-
-                // USE GOOGLE SERVICE IN BACKGROUND
-                const service = new google.maps.DistanceMatrixService();
-                const destinations = fieldData.map(f => new google.maps.LatLng(f.lat, f.lng));
-                const origin = new google.maps.LatLng(userLat, userLng);
-
-                service.getDistanceMatrix({
-                    origins: [origin],
-                    destinations: destinations,
-                    travelMode: 'DRIVING',
-                    unitSystem: google.maps.UnitSystem.IMPERIAL
-                }, (response, status) => {
-                    if (status === 'OK') {
-                        const results = response.rows[0].elements;
-                        let minDuration = Infinity;
-                        let closestIdx = -1;
-
-                        results.forEach((res, i) => {
-                            if (res.status === "OK" && res.duration.value < minDuration) {
-                                minDuration = res.duration.value;
-                                closestIdx = i;
-                            }
-                        });
-
-                        if (closestIdx !== -1) {
-                            const closest = fieldData[closestIdx];
-                            const data = results[closestIdx];
-                            bannerText.innerHTML = `NEAREST BY DRIVE TIME: <span class="text-teal-400">${closest.name}</span> (${data.duration.text} / ${data.distance.text})`;
-                            
-                            // Fly Leaflet map to the location
-                            map.flyTo([closest.lat, closest.lng], 11);
-                            
-                            // Open the specific marker popup
-                            const marker = markers[closestIdx];
-                            if (marker) marker.openPopup();
-                        }
-                    } else {
-                        bannerText.innerText = "ERROR: DRIVE TIME CALCULATION FAILED.";
-                    }
-                    findBtn.innerText = "RE-TARGET";
-                });
-
-            }, () => {
-                bannerText.innerText = "ACCESS DENIED: ENABLE LOCATION SERVICES.";
-                findBtn.innerText = "FIND CLOSEST FIELD";
-            }, { timeout: 10000 });
-        }
-
-        function clearLocation() {
-            document.getElementById('closest-field-banner').classList.add('hidden');
-            if (userMarker) map.removeLayer(userMarker);
-            map.setView([37.0902, -95.7129], 4);
-            document.getElementById('findBtn').innerHTML = '<i class="fa-solid fa-bolt"></i> Find Closest (Drive Time)';
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('fieldTableBody');
-            tbody.innerHTML = '';
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td class="p-4 font-bold text-teal-500">${item.state}</td><td class="p-4 text-white font-bold">${item.name}</td><td class="p-4 text-zinc-400 italic">${item.address}</td><td class="p-4 text-xs font-mono"><a href="${item.url}" target="_blank" class="text-teal-400 hover:underline">VISIT SITE</a></td>`;
-                tbody.appendChild(row);
-            });
-        }
-
-        function filterFields() {
-            const s = document.getElementById('stateFilter').value;
-            const filtered = s === 'ALL' ? fieldData : fieldData.filter(f => f.state === s);
-            renderTable(filtered);
-            if (map) updateMarkers(filtered);
-        }
-
-        let lastY = window.scrollY;
-        window.addEventListener('scroll', () => {
-            const currY = window.scrollY;
-            if (currY > 150 && currY > lastY) { document.getElementById('main-banner').classList.add('banner-hidden'); } 
-            else { document.getElementById('main-banner').classList.remove('banner-hidden'); }
-            lastY = currY;
-        });
-
-        window.onload = () => renderTable(fieldData);
-    </script>
-</body>
-</html>
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #050505;
-            color: #e5e7eb;
-            line-height: 1.6;
-        }
-
-        /* --- TICKET BRANDING HEADER --- */
-        .header-main-stack {
-            position: relative;
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .all-day-badge {
-            position: absolute;
-            top: -20px;
-            right: -30px;
-            z-index: 20;
-            background-color: var(--rogue-teal);
-            color: #000;
-            padding: 4px 20px;
-            font-family: 'Staatliches', cursive;
-            font-size: 1.5rem;
-            transform: rotate(8deg);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            pointer-events: none;
-            border: 2px solid #000;
-        }
-
-        .rogue-box {
-            border: 2px solid #fff;
-            padding: 10px 40px;
-            position: relative;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-            background: rgba(0,0,0,0.3);
-        }
-
-        .rogue-text {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 5rem;
-            font-weight: 800;
-            color: #fff;
-            margin: 0;
-            line-height: 1;
-            letter-spacing: 0.05em;
-            text-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
-        }
-
-        .paintball-subtext {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 400;
-            color: #fff;
-            letter-spacing: 1.2em;
-            text-transform: uppercase;
-            margin-top: 10px;
-            padding-left: 1.2em;
-            opacity: 0.9;
-        }
-
-        @media (max-width: 768px) {
-            .rogue-text { font-size: 3.5rem; }
-            .paintball-subtext { font-size: 1rem; letter-spacing: 0.8em; }
-            .all-day-badge { right: -10px; font-size: 1.2rem; }
-        }
-
-        h2, h3, .stencil {
-            font-family: 'Staatliches', cursive;
-            letter-spacing: 0.05em;
-        }
-
-        .hero-texture {
-            background: linear-gradient(to bottom, rgba(5, 45, 45, 0.9), rgba(5, 5, 5, 1)), 
-                        url('https://images.unsplash.com/photo-1526413232644-8a40f03cc03b?q=80&w=2000&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .warning-banner-strip {
-            background: repeating-linear-gradient(
-                45deg,
-                #facc15,
-                #facc15 10px,
-                #000 10px,
-                #000 20px
-            );
-        }
-
-        .directory-container {
-            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
-            border: 1px solid rgba(45, 212, 191, 0.2);
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
-            min-height: 400px;
-        }
-
-        .directory-header {
-            background: rgba(45, 212, 191, 0.1);
-            color: var(--rogue-teal);
-            font-family: 'Staatliches', cursive;
-            letter-spacing: 0.1em;
-        }
-
-        tr {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: background 0.2s;
-        }
-
-        tr:hover {
-            background: rgba(45, 212, 191, 0.1);
-        }
-
-        select {
-            background: #0f172a;
-            border: 1px solid #334155;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        #main-banner {
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-        }
-        
-        .banner-hidden {
-            transform: translateY(-100%);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .cost-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .screenpal-embed-wrapper {
-            width: 100%;
-            padding-bottom: 56.25%;
-            position: relative;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.1);
-        }
-
-        .screenpal-embed-wrapper iframe {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border: 0;
-        }
-
-        /* Map Styling */
-        #map-view {
-            height: 600px;
-            width: 100%;
-            z-index: 10;
-        }
-        
-        .leaflet-container {
-            background: #020617;
-        }
-
-        .view-btn {
-            transition: all 0.3s ease;
-        }
-
-        .view-btn.active {
-            background-color: var(--rogue-teal);
-            color: #000;
-        }
-    </style>
-</head>
-<body class="selection:bg-teal-500 selection:text-black">
-
-    <!-- Condensed Top Warning Banner -->
-    <div id="main-banner" class="sticky top-0 z-50">
-        <div class="warning-banner-strip h-1 w-full"></div>
-        <div class="bg-yellow-400 text-black py-1.5 px-4 text-center font-black uppercase text-xs sm:text-sm tracking-[0.15em] border-b border-black shadow-lg">
-            <div class="max-w-7xl mx-auto flex items-center justify-center gap-3">
-                <i class="fa-solid fa-triangle-exclamation"></i> 
-                <span>Tickets ONLY at mobile booth • Locations change every few days • No online sales</span>
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
-    <header class="hero-texture pt-16 pb-20 px-6 border-b border-zinc-800 relative">
-        <div class="max-w-5xl mx-auto text-center">
-            
-            <!-- BRANDED TICKET LOGO SECTION WITH OVERLAPPING BADGE -->
-            <div class="header-main-stack">
-                <div class="all-day-badge">ALL DAY PASS</div>
-                <div class="rogue-box">
-                    <h1 class="rogue-text">ROGUE</h1>
-                </div>
-                <div class="paintball-subtext">PAINTBALL</div>
-            </div>
-            
-            <div class="max-w-2xl mx-auto bg-zinc-900/90 border-2 border-teal-500 p-6 rounded shadow-2xl backdrop-blur-md">
-                <h3 class="text-teal-400 text-2xl font-bold uppercase mb-2"><i class="fa-solid fa-truck-fast mr-2"></i> Mobile Booth Notice</h3>
-                <p class="text-zinc-300 text-lg mb-4">
-                    Rogue Tickets can <span class="text-white font-bold">only</span> be purchased at our physical mobile booth. 
-                    The booth changes location every few days. No online sales.
-                </p>
-                <div class="pt-4 border-t border-teal-500/30 flex flex-col items-center gap-1">
-                    <div class="flex items-center gap-2 text-teal-400">
-                        <i class="fa-solid fa-hand-holding-heart text-xl"></i>
-                        <span class="stencil text-xl tracking-wider">Mission: Giving Back</span>
-                    </div>
-                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-white">10% of Revenue goes to Charity each year</p>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Field Directory Section -->
-    <main id="field-list-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-            <div class="space-y-2">
-                <h2 class="text-5xl stencil">Redeemable Field List</h2>
-                <p class="text-zinc-400 italic">Official participating fields. Site-specific markers show actual field locations.</p>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <!-- View Toggle -->
-                <div class="flex bg-zinc-900 border border-zinc-700 rounded p-1">
-                    <button id="listToggle" onclick="switchView('list')" class="view-btn active px-4 py-2 text-xs font-bold uppercase tracking-widest rounded">List</button>
-                    <button id="mapToggle" onclick="switchView('map')" class="view-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded">Map</button>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Filter:</label>
-                    <select id="stateFilter" onchange="filterFields()">
-                        <option value="ALL">ALL STATES</option>
-                        <option value="AZ">ARIZONA</option>
-                        <option value="CA">CALIFORNIA</option>
-                        <option value="CO">COLORADO</option>
-                        <option value="CT">CONNECTICUT</option>
-                        <option value="FL">FLORIDA</option>
-                        <option value="LA">LOUISIANA</option>
-                        <option value="MA">MASSACHUSETTS</option>
-                        <option value="MD">MARYLAND</option>
-                        <option value="NJ">NEW JERSEY</option>
-                        <option value="NY">NEW YORK</option>
-                        <option value="TX">TEXAS</option>
-                        <option value="VA">VIRGINIA</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div id="closest-field-banner" class="hidden mb-6 p-4 bg-teal-500/10 border border-teal-500/50 rounded-lg flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <i id="status-icon" class="fa-solid fa-location-dot text-teal-400"></i>
-                <p id="closest-field-text" class="text-sm font-bold uppercase tracking-wide"></p>
-            </div>
-            <button onclick="clearLocation()" class="text-zinc-500 hover:text-white text-xs uppercase font-bold tracking-widest">Clear</button>
-        </div>
-
-        <div class="directory-container rounded-xl overflow-hidden shadow-2xl relative">
-            <!-- List View -->
-            <div id="list-view" class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="directory-header">
-                        <tr>
-                            <th class="p-4 uppercase text-sm">State</th>
-                            <th class="p-4 uppercase text-sm">Field Name</th>
-                            <th class="p-4 uppercase text-sm">Street Address</th>
-                            <th class="p-4 uppercase text-sm">Official Website</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fieldTableBody" class="text-zinc-300 text-sm"></tbody>
-                </table>
-            </div>
-
-            <!-- Map View Container -->
-            <div id="map-view" class="hidden">
-                <div id="map" class="w-full h-full"></div>
-                <!-- Find My Location Button on Map -->
-                <button id="findBtn" onclick="findNearestField()" class="absolute bottom-6 right-6 z-[1000] bg-teal-500 text-black px-6 py-3 rounded-full font-black uppercase text-xs shadow-2xl hover:scale-105 active:scale-95 transition flex items-center gap-2 border-2 border-black">
-                    <i class="fa-solid fa-crosshairs"></i> Find Closest Field
-                </button>
-            </div>
-        </div>
-
         <div class="mt-8 p-6 bg-zinc-900 rounded-lg border border-zinc-800 text-sm text-zinc-400 grid md:grid-cols-2 gap-8">
             <div class="space-y-3">
                 <p class="font-bold text-white uppercase tracking-widest">Deployment Rules:</p>
@@ -1135,7 +473,7 @@
     </footer>
 
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const fieldData = [
             { state: 'CA', name: 'Hollywood Sports Park', address: '9030 Somerset Blvd, Bellflower, CA 90706', url: 'https://www.hollywoodsports.com', lat: 33.8837, lng: -118.1215 },
@@ -1190,34 +528,12 @@
         let markers = [];
         let userMarker;
 
-        function initMap() {
-            if (map) return;
-            map = L.map('map', { attributionControl: false }).setView([37.0902, -95.7129], 4);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
-            updateMarkers(fieldData);
-        }
-
-        function updateMarkers(data) {
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-            data.forEach(field => {
-                const marker = L.marker([field.lat, field.lng]).addTo(map);
-                marker.bindPopup(`
-                    <div class="text-black p-1">
-                        <b class="uppercase text-sm">${field.name}</b><br>
-                        <span class="text-[10px] text-zinc-500 font-bold block mb-1">${field.address}</span>
-                        <a href="${field.url}" target="_blank" class="bg-teal-600 text-white px-2 py-1 block text-center rounded font-bold text-[10px] uppercase">Field Rules</a>
-                    </div>
-                `);
-                markers.push(marker);
-            });
-        }
-
         function switchView(view) {
             const listToggle = document.getElementById('listToggle');
             const mapToggle = document.getElementById('mapToggle');
             const listView = document.getElementById('list-view');
             const mapView = document.getElementById('map-view');
+            
             if (view === 'list') {
                 listToggle.classList.add('active');
                 mapToggle.classList.remove('active');
@@ -1228,61 +544,113 @@
                 listToggle.classList.remove('active');
                 listView.classList.add('hidden');
                 mapView.classList.remove('hidden');
-                setTimeout(() => {
-                    initMap();
-                    map.invalidateSize();
-                }, 100);
+                initMap();
             }
         }
 
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 3958.8; 
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
+        function initMap() {
+            if (map) return;
+            // Initialize Leaflet Map with a sharp Dark look
+            map = L.map('map', { attributionControl: false }).setView([37.0902, -95.7129], 4);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+            updateMarkers(fieldData);
+            
+            // Adjust Leaflet sizing if switching tabs
+            setTimeout(() => { map.invalidateSize(); }, 100);
         }
 
-        function findNearestField() {
+        function updateMarkers(data) {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            data.forEach((field, index) => {
+                const marker = L.marker([field.lat, field.lng]).addTo(map);
+                marker.bindPopup(`
+                    <div class="p-1">
+                        <b class="uppercase text-sm text-white">${field.name}</b><br>
+                        <span class="text-[10px] text-zinc-400 font-bold block mb-1">${field.address}</span>
+                        <a href="${field.url}" target="_blank" class="bg-teal-600 text-white px-2 py-1 block text-center rounded font-bold text-[10px] uppercase">Field Rules</a>
+                    </div>
+                `);
+                markers.push(marker);
+            });
+        }
+
+        function findNearestByDriveTime() {
             if (!navigator.geolocation) {
+                alert("Geolocation not supported on this device.");
                 return;
             }
+
             const banner = document.getElementById('closest-field-banner');
             const bannerText = document.getElementById('closest-field-text');
             const findBtn = document.getElementById('findBtn');
-            findBtn.innerText = "Targeting...";
-            bannerText.innerText = "SCANNING FOR NEAREST FIELD...";
+            
+            findBtn.innerText = "Analyzing Coordinates...";
+            bannerText.innerText = "TRIANGULATING STRIKE TEAM LOCATION...";
             banner.classList.remove('hidden');
+
             navigator.geolocation.getCurrentPosition((position) => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
+
+                // Add User Marker to tactical map
                 if (userMarker) map.removeLayer(userMarker);
-                userMarker = L.circleMarker([userLat, userLng], { radius: 10, fillColor: "#fff", color: "#2dd4bf", weight: 3, opacity: 1, fillOpacity: 1 }).addTo(map).bindPopup("<b>STRIKE TEAM LOCATION</b>").openPopup();
-                let closest = null;
-                let minDistance = Infinity;
-                fieldData.forEach(field => {
-                    const dist = getDistance(userLat, userLng, field.lat, field.lng);
-                    if (dist < minDistance) { minDistance = dist; closest = field; }
+                userMarker = L.circleMarker([userLat, userLng], { 
+                    radius: 12, fillColor: "#fff", color: "#2dd4bf", weight: 4, opacity: 1, fillOpacity: 1 
+                }).addTo(map).bindPopup("<b class='text-black uppercase'>Your Position</b>").openPopup();
+
+                // Run Google Distance Matrix Service to find actual Drive Time
+                const service = new google.maps.DistanceMatrixService();
+                const destinations = fieldData.map(f => new google.maps.LatLng(f.lat, f.lng));
+                const origin = new google.maps.LatLng(userLat, userLng);
+
+                service.getDistanceMatrix({
+                    origins: [origin],
+                    destinations: destinations,
+                    travelMode: 'DRIVING',
+                    unitSystem: google.maps.UnitSystem.IMPERIAL
+                }, (response, status) => {
+                    if (status === 'OK') {
+                        const results = response.rows[0].elements;
+                        let minDuration = Infinity;
+                        let closestIdx = -1;
+
+                        results.forEach((res, i) => {
+                            if (res.status === "OK" && res.duration.value < minDuration) {
+                                minDuration = res.duration.value;
+                                closestIdx = i;
+                            }
+                        });
+
+                        if (closestIdx !== -1) {
+                            const closestField = fieldData[closestIdx];
+                            const data = results[closestIdx];
+                            bannerText.innerHTML = `NEAREST FIELD BY DRIVE TIME: <span class="text-teal-400">${closestField.name}</span> (${data.duration.text} / ${data.distance.text})`;
+                            
+                            // Fly to the closest field
+                            map.flyTo([closestField.lat, closestField.lng], 11);
+                            
+                            // Highlight specific marker
+                            const marker = markers[closestIdx];
+                            if (marker) marker.openPopup();
+                        }
+                    } else {
+                        bannerText.innerText = "ERROR: DRIVE TIME CALCULATION FAILED.";
+                    }
+                    findBtn.innerText = "RE-TARGET";
                 });
-                if (closest) {
-                    bannerText.innerHTML = `NEAREST FIELD: <span class="text-teal-400">${closest.name}</span> (${minDistance.toFixed(1)} miles)`;
-                    map.flyTo([closest.lat, closest.lng], 11, { animate: true, duration: 1.5 });
-                    const targetMarker = markers.find(m => Math.abs(m.getLatLng().lat - closest.lat) < 0.001);
-                    if (targetMarker) targetMarker.openPopup();
-                }
-                findBtn.innerText = "RE-TARGET";
+
             }, (err) => {
-                bannerText.innerText = "ACCESS DENIED: ENABLE LOCATION SERVICES.";
-                findBtn.innerText = "FIND CLOSET FIELD";
-            }, { timeout: 10000 });
+                bannerText.innerText = "ACCESS DENIED: ENABLE LOCATION SERVICES IN BROWSER.";
+                findBtn.innerText = "FIND CLOSEST FIELD";
+            }, { timeout: 10000, enableHighAccuracy: true });
         }
 
         function clearLocation() {
             document.getElementById('closest-field-banner').classList.add('hidden');
             if (userMarker) map.removeLayer(userMarker);
             map.setView([37.0902, -95.7129], 4);
-            document.getElementById('findBtn').innerHTML = '<i class="fa-solid fa-crosshairs"></i> Find Closest Field';
+            document.getElementById('findBtn').innerHTML = '<i class="fa-solid fa-car-side"></i> Find Closest (Drive Time)';
         }
 
         function renderTable(data) {
