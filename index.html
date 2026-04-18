@@ -6,6 +6,8 @@
     <title>Rogue Paintball | Field Directory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Staatliches&family=Inter:wght@400;700;900&family=Montserrat:wght@700;800&display=swap');
 
@@ -111,6 +113,7 @@
             background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
             border: 1px solid rgba(45, 212, 191, 0.2);
             box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            min-height: 400px;
         }
 
         .directory-header {
@@ -168,6 +171,26 @@
             top: 0; left: 0; width: 100%; height: 100%;
             border: 0;
         }
+
+        /* Map Styling */
+        #map-view {
+            height: 600px;
+            width: 100%;
+            z-index: 10;
+        }
+        
+        .leaflet-container {
+            background: #020617;
+        }
+
+        .view-btn {
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background-color: var(--rogue-teal);
+            color: #000;
+        }
     </style>
 </head>
 <body class="selection:bg-teal-500 selection:text-black">
@@ -215,46 +238,73 @@
     </header>
 
     <!-- Field Directory Section -->
-    <main id="field-list" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <main id="field-list-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div class="space-y-2">
                 <h2 class="text-5xl stencil">Redeemable Field List</h2>
-                <p class="text-zinc-400 italic">Official participating fields. Click a website to view field rules.</p>
+                <p class="text-zinc-400 italic">Official participating fields. Site-specific markers show actual field locations.</p>
             </div>
             
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Filter by State:</label>
-                <select id="stateFilter" onchange="filterFields()">
-                    <option value="ALL">ALL STATES</option>
-                    <option value="AZ">ARIZONA</option>
-                    <option value="CA">CALIFORNIA</option>
-                    <option value="CO">COLORADO</option>
-                    <option value="CT">CONNECTICUT</option>
-                    <option value="FL">FLORIDA</option>
-                    <option value="LA">LOUISIANA</option>
-                    <option value="MA">MASSACHUSETTS</option>
-                    <option value="MD">MARYLAND</option>
-                    <option value="NJ">NEW JERSEY</option>
-                    <option value="NY">NEW YORK</option>
-                    <option value="TX">TEXAS</option>
-                </select>
+                <!-- View Toggle -->
+                <div class="flex bg-zinc-900 border border-zinc-700 rounded p-1">
+                    <button id="listToggle" onclick="switchView('list')" class="view-btn active px-4 py-2 text-xs font-bold uppercase tracking-widest rounded">List</button>
+                    <button id="mapToggle" onclick="switchView('map')" class="view-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded">Map</button>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Filter:</label>
+                    <select id="stateFilter" onchange="filterFields()">
+                        <option value="ALL">ALL STATES</option>
+                        <option value="AZ">ARIZONA</option>
+                        <option value="CA">CALIFORNIA</option>
+                        <option value="CO">COLORADO</option>
+                        <option value="CT">CONNECTICUT</option>
+                        <option value="FL">FLORIDA</option>
+                        <option value="LA">LOUISIANA</option>
+                        <option value="MA">MASSACHUSETTS</option>
+                        <option value="MD">MARYLAND</option>
+                        <option value="NJ">NEW JERSEY</option>
+                        <option value="NY">NEW YORK</option>
+                        <option value="TX">TEXAS</option>
+                        <option value="VA">VIRGINIA</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="directory-container rounded-xl overflow-hidden shadow-2xl">
-            <div class="overflow-x-auto">
+        <div id="closest-field-banner" class="hidden mb-6 p-4 bg-teal-500/10 border border-teal-500/50 rounded-lg flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i id="status-icon" class="fa-solid fa-location-dot text-teal-400"></i>
+                <p id="closest-field-text" class="text-sm font-bold uppercase tracking-wide"></p>
+            </div>
+            <button onclick="clearLocation()" class="text-zinc-500 hover:text-white text-xs uppercase font-bold tracking-widest">Clear</button>
+        </div>
+
+        <div class="directory-container rounded-xl overflow-hidden shadow-2xl relative">
+            <!-- List View -->
+            <div id="list-view" class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead class="directory-header">
                         <tr>
                             <th class="p-4 uppercase text-sm">State</th>
                             <th class="p-4 uppercase text-sm">Field Name</th>
-                            <th class="p-4 uppercase text-sm">Location</th>
+                            <th class="p-4 uppercase text-sm">Street Address</th>
                             <th class="p-4 uppercase text-sm">Official Website</th>
                         </tr>
                     </thead>
-                    <tbody id="fieldTableBody" class="text-zinc-300"></tbody>
+                    <tbody id="fieldTableBody" class="text-zinc-300 text-sm"></tbody>
                 </table>
+            </div>
+
+            <!-- Map View Container -->
+            <div id="map-view" class="hidden">
+                <div id="map" class="w-full h-full"></div>
+                <!-- Find My Location Button on Map -->
+                <button id="findBtn" onclick="findNearestField()" class="absolute bottom-6 right-6 z-[1000] bg-teal-500 text-black px-6 py-3 rounded-full font-black uppercase text-xs shadow-2xl hover:scale-105 active:scale-95 transition flex items-center gap-2 border-2 border-black">
+                    <i class="fa-solid fa-crosshairs"></i> Find Closest Field
+                </button>
             </div>
         </div>
 
@@ -283,7 +333,6 @@
                 <h2 class="text-5xl stencil text-white">Standard Field Cost vs Rogue</h2>
             </div>
             <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <!-- Without Rogue Ticket -->
                 <div class="cost-card p-8 rounded-xl border-zinc-800">
                     <h3 class="text-2xl stencil text-zinc-500 mb-6">Without Rogue Ticket</h3>
                     <div class="space-y-4">
@@ -294,7 +343,6 @@
                         <div class="border-t border-zinc-700 pt-4 flex justify-between text-2xl font-black text-white"><span>TOTAL COST</span><span>$75</span></div>
                     </div>
                 </div>
-                <!-- With Rogue Ticket -->
                 <div class="cost-card p-8 rounded-xl border-teal-500/30 relative overflow-hidden text-white">
                     <div class="absolute top-0 right-0 bg-teal-500 text-black px-4 py-1 stencil text-sm rotate-12 translate-x-3 translate-y-2 shadow-lg">SAVES $40+</div>
                     <h3 class="text-2xl stencil text-teal-400 mb-6">With Rogue Ticket</h3>
@@ -407,80 +455,180 @@
         </div>
     </footer>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         const fieldData = [
-            { state: 'CA', name: 'Hollywood Sports Park', city: 'Bellflower', url: 'https://www.hollywoodsports.com' },
-            { state: 'CA', name: 'SC Village', city: 'Corona', url: 'https://www.scvillage.com' },
-            { state: 'CA', name: 'Paintball USA', city: 'Santa Clarita', url: 'https://www.paintballusa.org' },
-            { state: 'CA', name: 'Combat Paintball Park', city: 'Castaic', url: 'https://www.playcpp.com' },
-            { state: 'CA', name: 'Warped Paintball', city: 'Castaic', url: 'https://www.warpedpaintballpark.com' },
-            { state: 'CA', name: 'Ambush Paintball', city: 'Moorpark', url: 'https://www.ambushpaintballpark.com' },
-            { state: 'CA', name: 'Stryker Paintball & Airsoft', city: 'Santa Paula', url: 'https://www.strykerpa.com' },
-            { state: 'CA', name: 'The Shack', city: 'Santa Maria', url: 'https://www.theshackpaintball.com' },
-            { state: 'CA', name: 'Giant San Diego', city: 'Lakeside', url: 'https://www.giantpaintball.com' },
-            { state: 'CA', name: 'Playland Paintball', city: 'Petaluma', url: 'https://www.playland707.com' },
-            { state: 'CA', name: 'Davis Paintball', city: 'Davis', url: 'https://www.davispaintball.com' },
-            { state: 'CA', name: 'Sunol Paintball', city: 'Sunol', url: 'https://www.sunolpaintball.com' },
-            { state: 'CA', name: 'Tag Paintball', city: 'Hollister', url: 'https://www.tag1984.com' },
-            { state: 'AZ', name: 'American Paintball Coliseum', city: 'Phoenix', url: 'https://www.americanpaintballcoliseum.com' },
-            { state: 'CO', name: 'American Paintball Coliseum', city: 'Denver', url: 'https://www.americanpaintballcoliseum.com' },
-            { state: 'CO', name: 'American Paintball Coliseum', city: 'CO Springs', url: 'https://www.americanpaintballcoliseum.com' },
-            { state: 'CO', name: 'American Paintball Coliseum', city: 'Brighton', url: 'https://www.americanpaintballcoliseum.com' },
-            { state: 'TX', name: 'Giant Party Sports', city: 'Allen', url: 'https://www.giantpartysports.com' },
-            { state: 'TX', name: 'Fort Paintball', city: 'Allen', url: 'https://www.giantpartysports.com' },
-            { state: 'TX', name: 'Collin County Paintball', city: 'Anna', url: 'https://www.collincountypaintballpark.com' },
-            { state: 'TX', name: 'Hunt County Paintball', city: 'Greenville', url: 'https://www.huntcountypaintball.com' },
-            { state: 'TX', name: 'Cousins Paintball', city: 'Forney', url: 'https://www.cousinspaintball.com' },
-            { state: 'TX', name: 'Madd Dogz Paintball', city: 'Waxahachie', url: 'https://www.madddogz.com' },
-            { state: 'TX', name: '878 Airsoft', city: 'Waxahachie', url: 'https://www.878airsoft.com' },
-            { state: 'TX', name: 'What\'z-Up Paintball', city: 'Seven Points', url: 'https://www.whatzuppaintball.com' },
-            { state: 'TX', name: 'Xfactor Paintball', city: 'San Antonio', url: 'https://xfactorballpark.com' },
-            { state: 'TX', name: 'Survival Game of Texas', city: 'Houston', url: 'https://www.survivalgameoftexas.com' },
-            { state: 'LA', name: 'Guerrilla Warfare Paintball', city: 'Baton Rouge', url: 'http://www.guerrillawarfarepaintball.com' },
-            { state: 'NY', name: 'MSG Paintball Field', city: 'Middletown', url: 'https://www.msgpaintball.com' },
-            { state: 'NJ', name: 'Battlecreek Paintball', city: 'West Milford', url: 'https://www.battlecreekpaintballnj.com' },
-            { state: 'NJ', name: 'Playground Paintball Park', city: 'Mantua', url: 'https://www.playgroundpaintballpark.com' },
-            { state: 'MD', name: 'Northeast Adventure Paintball', city: 'North East', url: 'https://www.neapaintball.com' },
-            { state: 'MD', name: 'Southern Maryland Paintball', city: 'Newburg', url: 'https://www.southernmdpaintball.com' },
-            { state: 'MA', name: 'High Voltage Paintball', city: 'Holbrook', url: 'https://www.highvoltagepaintball.com' },
-            { state: 'MA', name: 'P&L Paintball', city: 'Bridgewater', url: 'https://www.pnlpaintball.com' },
-            { state: 'CT', name: 'Matt\'s Outback Paintball', city: 'Coventry', url: 'http://www.mattsoutback.com' },
-            { state: 'FL', name: 'Jungle Games', city: 'Lutz', url: 'https://www.facebook.com/junglegames' },
-            { state: 'FL', name: 'Warrior Sports Park', city: 'Orlando', url: 'https://www.warriorsportspark.com' },
-            { state: 'FL', name: 'Orlando Paintball', city: 'Orlando', url: 'https://www.orlandopaintball.com' },
-            { state: 'FL', name: 'Battle Ground Orlando', city: 'Orlando', url: 'https://www.battlegroundorlando.com' }
+            { state: 'CA', name: 'Hollywood Sports Park', address: '9030 Somerset Blvd, Bellflower, CA 90706', url: 'https://www.hollywoodsports.com', lat: 33.8837, lng: -118.1215 },
+            { state: 'CA', name: 'SC Village', address: '8900 McCarty Rd, Chino, CA 91708', url: 'https://www.scvillage.com', lat: 33.9189, lng: -117.6534 },
+            { state: 'CA', name: 'Paintball USA', address: '15112 Sierra Hwy, Santa Clarita, CA 91390', url: 'https://www.paintballusa.org', lat: 34.4208, lng: -118.5222 },
+            { state: 'CA', name: 'Combat Paintball Park', address: '31050 Charlie Canyon Rd, Castaic, CA 91384', url: 'https://www.playcpp.com', lat: 34.5028, lng: -118.6186 },
+            { state: 'CA', name: 'Warped Paintball', address: '34481 Ridge Route Rd, Castaic, CA 91384', url: 'https://www.warpedpaintballpark.com', lat: 34.4842, lng: -118.6312 },
+            { state: 'CA', name: 'Ambush Paintball', address: '8643 Shekell Rd, Moorpark, CA 93021', url: 'https://www.ambushpaintballpark.com', lat: 34.2855, lng: -118.8820 },
+            { state: 'CA', name: 'Stryker Paintball & Airsoft', address: '14316 Edwards Canyon Rd, Santa Paula, CA 93060', url: 'https://www.strykerpa.com', lat: 34.3542, lng: -119.0593 },
+            { state: 'CA', name: 'The Shack', address: '1564 Frontage Rd, Santa Maria, CA 93454', url: 'https://www.theshackpaintball.com', lat: 34.9530, lng: -120.4357 },
+            { state: 'CA', name: 'Giant San Diego', address: '1800 Wildcat Canyon Rd, Lakeside, CA 92040', url: 'https://www.giantpaintball.com', lat: 32.8573, lng: -116.9222 },
+            { state: 'CA', name: 'Playland Paintball', address: '221 Browns Valley Rd, Petaluma, CA 94952', url: 'https://www.playland707.com', lat: 38.2324, lng: -122.6367 },
+            { state: 'CA', name: 'Davis Paintball', address: '24998 Co Rd 102, Davis, CA 95618', url: 'https://www.davispaintball.com', lat: 38.5449, lng: -121.7405 },
+            { state: 'CA', name: 'Sunol Paintball', address: '7800 Kilkare Rd, Sunol, CA 94586', url: 'https://www.sunolpaintball.com', lat: 37.5941, lng: -121.8883 },
+            { state: 'CA', name: 'Tag Paintball', address: 'Hollister, CA 95023', url: 'https://www.tag1984.com', lat: 36.8525, lng: -121.4016 },
+            { state: 'AZ', name: 'American Paintball Coliseum', address: '2915 E Washington St, Phoenix, AZ 85034', url: 'https://www.americanpaintballcoliseum.com', lat: 33.4484, lng: -112.0220 },
+            { state: 'CO', name: 'American Paintball Coliseum', address: '5095 Peoria St, Denver, CO 80239', url: 'https://www.americanpaintballcoliseum.com', lat: 39.7392, lng: -104.9903 },
+            { state: 'CO', name: 'American Paintball Coliseum', address: '102 E Garden of the Gods Rd, CO Springs, CO 80907', url: 'https://www.americanpaintballcoliseum.com', lat: 38.8339, lng: -104.8214 },
+            { state: 'CO', name: 'American Paintball Coliseum', address: '15530 E 120th Ave, Brighton, CO 80603', url: 'https://www.americanpaintballcoliseum.com', lat: 39.9853, lng: -104.8203 },
+            { state: 'TX', name: 'Giant Party Sports', address: '13100 Hwy 121, Allen, TX 75013', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
+            { state: 'TX', name: 'Fort Paintball', address: '13100 Hwy 121, Allen, TX 75013', url: 'https://www.giantpartysports.com', lat: 33.1032, lng: -96.6706 },
+            { state: 'TX', name: 'Collin County Paintball', address: '2433 Co Rd 371, Anna, TX 75409', url: 'https://www.collincountypaintballpark.com', lat: 33.3484, lng: -96.5517 },
+            { state: 'TX', name: 'Hunt County Paintball', address: '9601 FM 1568, Greenville, TX 75402', url: 'https://www.huntcountypaintball.com', lat: 33.1385, lng: -96.1108 },
+            { state: 'TX', name: 'Cousins Forney', address: '8975 FM 740, Forney, TX 75126', url: 'https://www.cousinspaintball.com', lat: 32.7301, lng: -96.4852 },
+            { state: 'TX', name: 'Madd Dogz Paintball', address: '4100 US-287, Waxahachie, TX 75165', url: 'https://www.madddogz.com', lat: 32.3865, lng: -96.8483 },
+            { state: 'TX', name: '878 Airsoft', address: '4100 US-287, Waxahachie, TX 75165', url: 'https://www.878airsoft.com', lat: 32.3865, lng: -96.8483 },
+            { state: 'TX', name: 'What\'z-Up Paintball', address: '14316 Edwards Canyon Rd, Seven Points, TX 75143', url: 'https://www.whatzuppaintball.com', lat: 32.3335, lng: -96.2089 },
+            { state: 'TX', name: 'Xfactor Paintball', address: '13100 Hwy 121, San Antonio, TX 78201', url: 'https://xfactorballpark.com', lat: 29.4241, lng: -98.4936 },
+            { state: 'TX', name: 'Survival Game of Texas', address: '2309 Aldine Mail Rte Rd, Houston, TX 77039', url: 'https://www.survivalgameoftexas.com', lat: 29.7604, lng: -95.3698 },
+            { state: 'LA', name: 'Guerrilla Warfare Paintball', address: 'Baton Rouge, LA', url: 'http://www.guerrillawarfarepaintball.com', lat: 30.4515, lng: -91.1871 },
+            { state: 'NY', name: 'Cousins Long Island - Vets Park', address: '5789 Rt 25, Calverton, NY 11933', url: 'https://www.cousinspaintball.com', lat: 40.9163, lng: -72.7667 },
+            { state: 'NY', name: 'Cousins Long Island - Edwards Ave', address: '407 Edwards Ave, Calverton, NY 11933', url: 'https://www.cousinspaintball.com', lat: 40.9113, lng: -72.7844 },
+            { state: 'NY', name: 'Cousins Staten Island', address: '2727 Arthur Kill Rd, Staten Island, NY 10309', url: 'https://www.cousinspaintball.com', lat: 40.5401, lng: -74.2185 },
+            { state: 'NY', name: 'MSG Paintball Field', address: '636 NY-17M, Middletown, NY 10940', url: 'https://www.msgpaintball.com', lat: 41.4459, lng: -74.4232 },
+            { state: 'NJ', name: 'Cousins Manchester', address: '750 Rt 539, Manchester, NJ 08759', url: 'https://www.cousinspaintball.com', lat: 39.9547, lng: -74.3986 },
+            { state: 'NJ', name: 'Cousins Fireball Mountain', address: '295 Meany Rd, Wrightstown, NJ 08562', url: 'https://www.cousinspaintball.com', lat: 40.0469, lng: -74.6064 },
+            { state: 'NJ', name: 'Battlecreek Paintball', address: '625 Macopin Rd, West Milford, NJ 07480', url: 'https://www.battlecreekpaintballnj.com', lat: 41.1323, lng: -74.3643 },
+            { state: 'NJ', name: 'Playground Paintball Park', address: '669 Bridgeton Pike, Mantua, NJ 08051', url: 'https://www.playgroundpaintballpark.com', lat: 39.7893, lng: -75.1724 },
+            { state: 'MD', name: 'Northeast Adventure Paintball', address: 'North East, MD', url: 'https://www.neapaintball.com', lat: 39.5996, lng: -75.9416 },
+            { state: 'MD', name: 'Southern Maryland Paintball', address: 'Newburg, MD', url: 'https://www.southernmdpaintball.com', lat: 38.3846, lng: -76.9427 },
+            { state: 'MA', name: 'High Voltage Paintball', address: 'Holbrook, MA', url: 'https://www.highvoltagepaintball.com', lat: 42.1487, lng: -71.0101 },
+            { state: 'MA', name: 'P&L Paintball', address: 'Bridgewater, MA', url: 'https://www.pnlpaintball.com', lat: 41.9904, lng: -70.9750 },
+            { state: 'CT', name: 'Matt\'s Outback Paintball', address: 'Coventry, CT', url: 'http://www.mattsoutback.com', lat: 41.7709, lng: -72.3087 },
+            { state: 'FL', name: 'Jungle Games', address: 'Lutz, FL', url: 'https://www.facebook.com/junglegames', lat: 28.1511, lng: -82.4615 },
+            { state: 'FL', name: 'Warrior Sports Park', address: '2100 Eastbrook Blvd, Orlando, FL 32817', url: 'https://www.warriorsportspark.com', lat: 28.5925, lng: -81.2589 },
+            { state: 'FL', name: 'Orlando Paintball', address: '7215 Rose Ave, Orlando, FL 32810', url: 'https://www.orlandopaintball.com', lat: 28.6001, lng: -81.4285 },
+            { state: 'FL', name: 'Battle Ground Orlando', address: 'Orlando, FL', url: 'https://www.battlegroundorlando.com', lat: 28.5383, lng: -81.3792 },
+            { state: 'VA', name: 'Cousins Strasburg', address: '363 Radio Station Rd, Strasburg, VA 22657', url: 'https://www.cousinspaintball.com', lat: 38.9959, lng: -78.3615 },
+            { state: 'VA', name: 'Cousins Stephens City Party Center', address: '4490 Valley Ave, Stephens City, VA 22655', url: 'https://www.cousinspaintball.com', lat: 39.0881, lng: -78.2131 }
         ];
+
+        let map;
+        let markers = [];
+        let userMarker;
+
+        function initMap() {
+            if (map) return;
+            map = L.map('map', { attributionControl: false }).setView([37.0902, -95.7129], 4);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+            updateMarkers(fieldData);
+        }
+
+        function updateMarkers(data) {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            data.forEach(field => {
+                const marker = L.marker([field.lat, field.lng]).addTo(map);
+                marker.bindPopup(`
+                    <div class="text-black p-1">
+                        <b class="uppercase text-sm">${field.name}</b><br>
+                        <span class="text-[10px] text-zinc-500 font-bold block mb-1">${field.address}</span>
+                        <a href="${field.url}" target="_blank" class="bg-teal-600 text-white px-2 py-1 block text-center rounded font-bold text-[10px] uppercase">Field Rules</a>
+                    </div>
+                `);
+                markers.push(marker);
+            });
+        }
+
+        function switchView(view) {
+            const listToggle = document.getElementById('listToggle');
+            const mapToggle = document.getElementById('mapToggle');
+            const listView = document.getElementById('list-view');
+            const mapView = document.getElementById('map-view');
+            if (view === 'list') {
+                listToggle.classList.add('active');
+                mapToggle.classList.remove('active');
+                listView.classList.remove('hidden');
+                mapView.classList.add('hidden');
+            } else {
+                mapToggle.classList.add('active');
+                listToggle.classList.remove('active');
+                listView.classList.add('hidden');
+                mapView.classList.remove('hidden');
+                setTimeout(() => {
+                    initMap();
+                    map.invalidateSize();
+                }, 100);
+            }
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 3958.8; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function findNearestField() {
+            if (!navigator.geolocation) {
+                return;
+            }
+            const banner = document.getElementById('closest-field-banner');
+            const bannerText = document.getElementById('closest-field-text');
+            const findBtn = document.getElementById('findBtn');
+            findBtn.innerText = "Targeting...";
+            bannerText.innerText = "SCANNING FOR NEAREST FIELD...";
+            banner.classList.remove('hidden');
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.circleMarker([userLat, userLng], { radius: 10, fillColor: "#fff", color: "#2dd4bf", weight: 3, opacity: 1, fillOpacity: 1 }).addTo(map).bindPopup("<b>STRIKE TEAM LOCATION</b>").openPopup();
+                let closest = null;
+                let minDistance = Infinity;
+                fieldData.forEach(field => {
+                    const dist = getDistance(userLat, userLng, field.lat, field.lng);
+                    if (dist < minDistance) { minDistance = dist; closest = field; }
+                });
+                if (closest) {
+                    bannerText.innerHTML = `NEAREST FIELD: <span class="text-teal-400">${closest.name}</span> (${minDistance.toFixed(1)} miles)`;
+                    map.flyTo([closest.lat, closest.lng], 11, { animate: true, duration: 1.5 });
+                    const targetMarker = markers.find(m => Math.abs(m.getLatLng().lat - closest.lat) < 0.001);
+                    if (targetMarker) targetMarker.openPopup();
+                }
+                findBtn.innerText = "RE-TARGET";
+            }, (err) => {
+                bannerText.innerText = "ACCESS DENIED: ENABLE LOCATION SERVICES.";
+                findBtn.innerText = "FIND CLOSET FIELD";
+            }, { timeout: 10000 });
+        }
+
+        function clearLocation() {
+            document.getElementById('closest-field-banner').classList.add('hidden');
+            if (userMarker) map.removeLayer(userMarker);
+            map.setView([37.0902, -95.7129], 4);
+            document.getElementById('findBtn').innerHTML = '<i class="fa-solid fa-crosshairs"></i> Find Closest Field';
+        }
 
         function renderTable(data) {
             const tbody = document.getElementById('fieldTableBody');
             tbody.innerHTML = '';
             data.forEach(item => {
                 const row = document.createElement('tr');
-                const displayUrl = item.url.replace('https://', '').replace('http://', '').replace('www.', '');
-                row.innerHTML = `
-                    <td class="p-4 font-bold text-teal-500">${item.state}</td>
-                    <td class="p-4 text-white font-bold">${item.name}</td>
-                    <td class="p-4 text-zinc-400">${item.city}</td>
-                    <td class="p-4 text-xs font-mono">
-                        <a href="${item.url}" target="_blank" class="text-teal-400 hover:underline">${displayUrl}</a>
-                    </td>`;
+                row.innerHTML = `<td class="p-4 font-bold text-teal-500">${item.state}</td><td class="p-4 text-white font-bold">${item.name}</td><td class="p-4 text-zinc-400 italic">${item.address}</td><td class="p-4 text-xs font-mono"><a href="${item.url}" target="_blank" class="text-teal-400 hover:underline">VISIT SITE</a></td>`;
                 tbody.appendChild(row);
             });
         }
 
         function filterFields() {
             const s = document.getElementById('stateFilter').value;
-            renderTable(s === 'ALL' ? fieldData : fieldData.filter(f => f.state === s));
+            const filtered = s === 'ALL' ? fieldData : fieldData.filter(f => f.state === s);
+            renderTable(filtered);
+            if (map) updateMarkers(filtered);
         }
 
         let lastY = window.scrollY;
         window.addEventListener('scroll', () => {
             const currY = window.scrollY;
-            if (currY > 150 && currY > lastY) {
-                document.getElementById('main-banner').classList.add('banner-hidden');
-            } else {
-                document.getElementById('main-banner').classList.remove('banner-hidden');
-            }
+            if (currY > 150 && currY > lastY) { document.getElementById('main-banner').classList.add('banner-hidden'); } 
+            else { document.getElementById('main-banner').classList.remove('banner-hidden'); }
             lastY = currY;
         });
 
